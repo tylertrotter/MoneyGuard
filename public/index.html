@@ -1,0 +1,73 @@
+
+<html>
+  <head>
+    <title>My ParseApp site</title>
+      <script src="http://www.parsecdn.com/js/parse-1.6.14.min.js"></script>
+  </head>
+  <body>
+    <ul class="categories"></ul>
+    
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script>
+            Parse.initialize("trhHaGuuYNlb5Xh1tLPfala0t1TuW6LynFURnMR2", "dEUhUrIUbdSk89pnWAwb4zwhYx3LTxskmC82lPC7"); 
+
+            var Categories = Parse.Object.extend("Categories");
+            var categoriesQuery = new Parse.Query(Categories);
+
+            // Print out category list
+            categoriesQuery.find({
+              success: function(categories){
+                  var categoryList = '';
+                  for (var i = 0; i < categories.length; i++) {
+                    categoryList += '<li id="' + categories[i].get('objectId') + '"><button>+</button><span class="category">' + categories[i].get('Name') + '</span><span class="spent-this-month">0</span><span>$' + categories[i].get('Budget') + '</span></li>';
+                  }
+                  $('body').html(categoryList);
+              },
+              error: function(error) {
+                alert("Error: " + error.code + " " + error.message);
+                }
+            });
+            
+            function getWeekStart( date ) {
+                var startOfWeek = 1;
+                var day = date.getDay() || 7;  
+                if( day !== startOfWeek ) 
+                    date.setHours(-24 * (day - startOfWeek)); 
+                return date;
+            }
+
+            console.log(getWeekStart(new Date()));
+            
+            // Get Expenses
+            var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            var currentYear = new Date().getFullYear();
+            var currentMonth = months[new Date().getMonth()];
+            var currentDayOfWeek = new Date().getDay();
+            var currentMonthDateObj = new Date(currentMonth + ' 1, ' + currentYear + ' 00:00:00');
+            console.log(currentDayOfWeek);
+            var Expenses = Parse.Object.extend("Expenses");
+            var monthQuery = new Parse.Query(Expenses);
+            var weekQuery = new Parse.Query(Expenses);
+            
+            monthQuery.greaterThanOrEqualTo("Date", currentMonthDateObj);
+
+            // Print out category list
+            monthQuery.find({
+              success: function(expenses){
+                  for (var i = 0; i < expenses.length; i++) {
+                    category = $('#' + expenses[i].get('category'));
+                    monthSpentEl = category.find('.spent-this-month');
+                    monthSpentNum = monthSpentEl.text()*1 + expenses[i].get('Amount')*1;
+                    monthSpentEl.text(monthSpentNum);
+                  }
+              },
+              error: function(error) {
+                alert("Error: " + error.code + " " + error.message);
+                }
+            });
+            
+            // Get Monthly totals
+            
+        </script>
+  </body>
+</html>

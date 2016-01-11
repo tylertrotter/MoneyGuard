@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "Expense Tracker": {
+      "applicationId": "trhHaGuuYNlb5Xh1tLPfala0t1TuW6LynFURnMR2"
+    },
+    "_default": {
+      "link": "Expense Tracker"
+    }
+  }
+}
