@@ -7,9 +7,12 @@
   <body>
     <ul class="categories"></ul>
     
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
         <script>
             Parse.initialize("trhHaGuuYNlb5Xh1tLPfala0t1TuW6LynFURnMR2", "dEUhUrIUbdSk89pnWAwb4zwhYx3LTxskmC82lPC7"); 
+            
+            moneyGuard = {};
+            moneyGuard.expenses = {};
 
             var Categories = Parse.Object.extend("Categories");
             var categoriesQuery = new Parse.Query(Categories);
@@ -19,54 +22,102 @@
               success: function(categories){
                   var categoryList = '';
                   for (var i = 0; i < categories.length; i++) {
-                    categoryList += '<li id="' + categories[i].get('objectId') + '"><button>+</button><span class="category">' + categories[i].get('Name') + '</span><span class="spent-this-month">0</span><span>$' + categories[i].get('Budget') + '</span></li>';
+                    categoryList += '<li id="' + categories[i].id + '"><button>+</button><span class="category">' + categories[i].get('Name') + '</span>';
+                    categoryList += '<div class="week"><span class="spent">0</span><span>$' + Math.round(categories[i].get('Budget') / 4.3333333) + '</span></div>';
+                    categoryList += '<div class="month"><span class="spent">0</span><span>$' + categories[i].get('Budget') + '</span></div>';
+                    categoryList += '</li>';
                   }
-                  $('body').html(categoryList);
+                  $('body').html('<ul id="expenses">' + categoryList + '</ul>');
               },
               error: function(error) {
                 alert("Error: " + error.code + " " + error.message);
                 }
             });
-            
-            function getWeekStart( date ) {
-                var startOfWeek = 1;
-                var day = date.getDay() || 7;  
-                if( day !== startOfWeek ) 
-                    date.setHours(-24 * (day - startOfWeek)); 
-                return date;
-            }
-
-            console.log(getWeekStart(new Date()));
-            
+       
             // Get Expenses
-            var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
             var currentYear = new Date().getFullYear();
-            var currentMonth = months[new Date().getMonth()];
+            var currentMonth = englishMonth(new Date().getMonth());
             var currentDayOfWeek = new Date().getDay();
             var currentMonthDateObj = new Date(currentMonth + ' 1, ' + currentYear + ' 00:00:00');
-            console.log(currentDayOfWeek);
-            var Expenses = Parse.Object.extend("Expenses");
-            var monthQuery = new Parse.Query(Expenses);
-            var weekQuery = new Parse.Query(Expenses);
-            
+
+              
+            // Month and week expense queries
+            var monthExpenses = Parse.Object.extend("Expenses");
+            var monthQuery = new Parse.Query(monthExpenses);
+
+
+
+            // Constraints
             monthQuery.greaterThanOrEqualTo("Date", currentMonthDateObj);
 
-            // Print out category list
+            // Calculate monthly expenses
             monthQuery.find({
               success: function(expenses){
-                  for (var i = 0; i < expenses.length; i++) {
-                    category = $('#' + expenses[i].get('category'));
-                    monthSpentEl = category.find('.spent-this-month');
-                    monthSpentNum = monthSpentEl.text()*1 + expenses[i].get('Amount')*1;
-                    monthSpentEl.text(monthSpentNum);
-                  }
+                objectifyExpenses(expenses, 'month');
               },
-              error: function(error) {
+              error: function(error1) {
                 alert("Error: " + error.code + " " + error.message);
-                }
+                }   
+            });
+
+            var weekExpenses = Parse.Object.extend("Expenses");
+            var weekQuery = new Parse.Query(weekExpenses);
+            
+            weekQuery.greaterThanOrEqualTo("Date", getWeekStart());
+            
+            // Calculate weekly expenses
+            weekQuery.find({
+              success: function(expenses){
+                objectifyExpenses(expenses, 'week');
+                
+              },
+              error: function(error1) {
+                alert("Error: " + error.code + " " + error.message);
+                }   
             });
             
-            // Get Monthly totals
+            // FUNCTIONS
+            function objectifyExpenses(expenses, timeRange){
+                var expensesObj = {};
+                var category;
+                for (var i = 0; i < expenses.length; i++) {
+                    category = expenses[i].get('Category').id;
+                    expensesObj[category] = 0;      
+                }
+                for (var i = 0; i < expenses.length; i++) {
+                    category = expenses[i].get('Category').id;
+                    expensesObj[category] = expensesObj[category] + expenses[i].get('Amount');
+                }
+                moneyGuard.expenses[timeRange] = expensesObj;
+                
+                $('#expenses').find('li').each(function(){
+                    categoryId = $(this).attr('id');
+                    $(this).find('.' + timeRange).find('.spent').html(moneyGuard.expenses[timeRange][categoryId]);   
+                });
+                console.log(moneyGuard);
+            }
+            function getWeekStart() {
+                var startOfWeek = 1;
+                var currentDay = new Date().getDay();
+                var timestamp = new Date().getTime();
+                var daysAheadOfStart;
+                var millisecondsAhead;
+                
+                if(currentDay >= startOfWeek){
+                    daysAheadOfStart = currentDay - startOfWeek;
+                }else{
+                    daysAheadOfStart = 7 - (startOfWeek - currentDay);
+                }
+                    
+                millisecondsAhead = daysAheadOfStart * (24 * 60 * 60 * 1000); 
+                return new Date(new Date(timestamp - millisecondsAhead).setHours(0,0,0));
+            }
+            
+            function englishMonth(monthNum){
+                var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                return months[monthNum];
+            }
+            
             
         </script>
   </body>
