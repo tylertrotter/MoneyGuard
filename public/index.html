@@ -1,4 +1,3 @@
-
 <html>
   <head>
     <title>My ParseApp site</title>
@@ -34,20 +33,18 @@
                 }
             });
        
-            // Get Expenses
+            // Time Ranges
             var currentYear = new Date().getFullYear();
             var currentMonth = englishMonth(new Date().getMonth());
             var currentDayOfWeek = new Date().getDay();
             var currentMonthDateObj = new Date(currentMonth + ' 1, ' + currentYear + ' 00:00:00');
 
               
-            // Month and week expense queries
-            var monthExpenses = Parse.Object.extend("Expenses");
-            var monthQuery = new Parse.Query(monthExpenses);
-
-
-
-            // Constraints
+            // Expenses
+            var expenses = Parse.Object.extend("Expenses");
+            
+            // Month
+            var monthQuery = new Parse.Query(expenses);
             monthQuery.greaterThanOrEqualTo("Date", currentMonthDateObj);
 
             // Calculate monthly expenses
@@ -59,10 +56,9 @@
                 alert("Error: " + error.code + " " + error.message);
                 }   
             });
-
-            var weekExpenses = Parse.Object.extend("Expenses");
-            var weekQuery = new Parse.Query(weekExpenses);
             
+            // Week
+            var weekQuery = new Parse.Query(expenses);
             weekQuery.greaterThanOrEqualTo("Date", getWeekStart());
             
             // Calculate weekly expenses
@@ -71,12 +67,32 @@
                 objectifyExpenses(expenses, 'week');
                 
               },
-              error: function(error1) {
+              error: function(error) {
                 alert("Error: " + error.code + " " + error.message);
                 }   
             });
             
+            
+            // Events
+            $(document).on('click', 'button', function(){
+                addExpense(2.22, 'kJdX3hg0Ze', new Date(), [34.1606659,-80.8805332]); 
+            });
+            
             // FUNCTIONS
+            function addExpense(amount, category, date, location){
+                var Expenses = Parse.Object.extend("Expenses");
+                var expenses = new Expenses();
+                var category = new Parse.Object("Categories");
+                category.id = "kJdX3hg0Ze";
+                var geoPoint = new Parse.GeoPoint(location);
+                expenses.save({
+                    'Amount': 2.22,
+                    'Date': new Date(),
+                    'Category': category,
+                    'Location': geoPoint
+                });
+            }
+            
             function objectifyExpenses(expenses, timeRange){
                 var expensesObj = {};
                 var category;
@@ -90,11 +106,13 @@
                 }
                 moneyGuard.expenses[timeRange] = expensesObj;
                 
-                $('#expenses').find('li').each(function(){
-                    categoryId = $(this).attr('id');
-                    $(this).find('.' + timeRange).find('.spent').html(moneyGuard.expenses[timeRange][categoryId]);   
-                });
-                console.log(moneyGuard);
+                setTimeout(function(){
+                    $('#expenses').find('li').each(function(){
+                        categoryId = $(this).attr('id');
+                        $(this).find('.' + timeRange).find('.spent').html(moneyGuard.expenses[timeRange][categoryId]);   
+                    });
+                    console.log(moneyGuard);
+                }, 100, timeRange);
             }
             function getWeekStart() {
                 var startOfWeek = 1;
