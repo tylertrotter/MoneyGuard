@@ -4,7 +4,32 @@
       <script src="http://www.parsecdn.com/js/parse-1.6.14.min.js"></script>
   </head>
   <body>
-    <ul class="categories"></ul>
+  <section id="signup">
+      <h1>Signup</h1>
+        <div>
+            <label>Email</label>
+            <input type="email">
+        </div>
+        <div>
+            <label>Password</label>
+            <input type="password">
+        </div>
+        <button id="signup-button" type="button">Sign up</button>
+   </section>
+   <section id="login">
+      <h1>Login</h1>
+       <div>
+            <label>Email</label>
+            <input type="email">
+        </div>
+        <div>
+            <label>Password</label>
+            <input type="password">
+        </div>
+        <button id="login-button" type="button">Login</button>
+   </section>
+   <section id="main"> </section>
+    
     
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
         <script>
@@ -12,6 +37,41 @@
             
             moneyGuard = {};
             moneyGuard.expenses = {};
+            
+            // Check to see if logged in
+            console.log(Parse.User.current().id);
+            
+            // Sign Up
+            function signUp(username, password){
+                var user = new Parse.User();
+                user.set("username", username);
+                user.set("password", password);
+                user.set("email", username);
+
+                user.signUp(null, {
+                  success: function(user) {
+                     alert("yay");
+                  },
+                  error: function(user, error) {
+                    // Show the error message somewhere and let the user try again.
+                    alert("Error: " + error.code + " " + error.message);
+                  }
+                })
+            }
+            
+            // Log In
+            function logIn(username, password){
+                console.log(username, password);
+                var user = new Parse.User();
+                Parse.User.logIn(username, password, {
+                    success: function(user) {
+                        console.log(Parse.User.current().id)
+                    },
+                    error: function(user, error) {
+                        // The login failed. Check error to see why.
+                    }
+                });
+            }
 
             var Categories = Parse.Object.extend("Categories");
             var categoriesQuery = new Parse.Query(Categories);
@@ -26,7 +86,7 @@
                     categoryList += '<div class="month"><span class="spent">0</span><span>$' + categories[i].get('Budget') + '</span></div>';
                     categoryList += '</li>';
                   }
-                  $('body').html('<ul id="expenses">' + categoryList + '</ul>');
+                  $('#main').html('<ul id="expenses">' + categoryList + '</ul>');
               },
               error: function(error) {
                 alert("Error: " + error.code + " " + error.message);
@@ -74,8 +134,12 @@
             
             
             // Events
-            $(document).on('click', 'button', function(){
+            $(document).on('click', '#main button', function(){
                 addExpense(2.22, 'kJdX3hg0Ze', new Date(), [34.1606659,-80.8805332]); 
+            }).on('click', '#signup-button', function(){
+               signUp($('#signup').find('[type=email]').val(), $('#signup').find('[type=password]').val()); 
+            }).on('click', '#login-button', function(){
+               logIn($('#login').find('[type=email]').val(), $('#login').find('[type=password]').val()); 
             });
             
             // FUNCTIONS
