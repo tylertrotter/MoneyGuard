@@ -3,11 +3,20 @@
     <title>My ParseApp site</title>
       <script src="http://www.parsecdn.com/js/parse-1.6.14.min.js"></script>
       <style>
+          #top-bar{ background: black; }
           body > section{ display: none; }
           .active{ display: block; }
+          .selected{ border: 3px solid red; }
+          .other-days{ display: none; }
+          .spent:before{ content: '$'; }
       </style>
   </head>
   <body>
+      <div id="top-bar">
+          <img src="http://placehold.it/30x30">
+          <a href="#logout" class="name"></a>
+          <a href="#settings" class="settings-button">Settings</a>
+      </div>
       <section id="login-signup">
           <section id="signup">
           <h1>Signup</h1>
@@ -35,14 +44,30 @@
    </section>
       </section>
       <section id="main"> </section>
-    
-    
+      <section id="add-expense" data-category="">
+          <h1></h1>
+          <div class="amount-input">$<input type="number"></div>
+          <div class="button-group">
+              <button type="button" class="selected">Today</button>
+              <button type="button">Other</button>
+          </div>
+          <div class="button-group other-days">
+              <button>M</button>
+              <button>T</button>
+              <button>W</button>
+          </div>
+          <hr>
+          <button type="button" id="save-button">Record It</button>
+      </section>
+      <section id="settings"></section>
+      
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
         <script>
             Parse.initialize("trhHaGuuYNlb5Xh1tLPfala0t1TuW6LynFURnMR2", "dEUhUrIUbdSk89pnWAwb4zwhYx3LTxskmC82lPC7"); 
             
             moneyGuard = {};
             moneyGuard.expenses = {};
+            moneyGuard.user = {};
             
             // Check to see if logged in
             checkIfLoggedIn();
@@ -50,6 +75,20 @@
                 if( Parse.User.current() == null ){
                     $('#login-signup').addClass('active');       
                 }else{
+                    // Get Session Token
+                    var user = new Parse.Object.extend("User");
+                    userQuery = new Parse.Query(user);
+                    userQuery.find({
+                      success: function(user){
+                          var name = user[0].get("name");
+                          $('#top-bar').find('.name').html(name);
+                          moneyGuard.user.name = name;
+                          moneyGuard.user.id = user[0].id;
+                      },
+                      error: function(error) {
+                        alert("Error: " + error.code + " " + error.message);
+                        }
+                    });
                     $('#main').addClass('active').siblings().removeClass('active');
                 }
             }
@@ -90,17 +129,7 @@
             var categoriesQuery = new Parse.Query(Categories);
             
           
-            // Get Session Token
-            var user = new Parse.Object.extend("User");
-            userQuery = new Parse.Query(user);
-            userQuery.find({
-              success: function(user){
-                 console.log(user[0].getSessionToken())
-              },
-              error: function(error) {
-                alert("Error: " + error.code + " " + error.message);
-                }
-            });
+            
 
 
             // Print out category list
@@ -161,29 +190,63 @@
             
             
             // Events
-            $(document).on('click', '#main button', function(){
-                addExpense(2.22, 'kJdX3hg0Ze', new Date(), [34.1606659,-80.8805332]); 
-            }).on('click', '#signup-button', function(){
+            $(document).on('click', '#signup-button', function(){
                signUp($('#signup').find('[type=email]').val(), $('#signup').find('[type=password]').val()); 
             }).on('click', '#login-button', function(){
                logIn($('#login').find('[type=email]').val(), $('#login').find('[type=password]').val()); 
+            }).on('click', '#main button', function(){
+                var categoryName = $(this).parents('li').find('.category').html();
+                $('#add-expense').find('h1').html(categoryName);
+                $('#add-expense').addClass('active').attr('data-category', $(this).parents('li').attr('id')); 
+                $('#add-expense').find('.amount-input input').focus();
+                getLocation();
+            }).on('click', '#save-button', function(){
+                var amount = $('#add-expense').find('.amount-input input').val()*1;
+                if( amount <= 0 ){
+                    alert('Something is wrong with your expense amount.');
+                }else{
+                    var latLong = $('#add-expense').attr('data-location').split(',');
+                    addExpense(amount, $('#add-expense').attr('data-category'), new Date(), [latLong[0]*1, latLong[1]*1]); 
+                }
             });
             
             // FUNCTIONS
-            function addExpense(amount, category, date, location){
+            function addExpense(amount, cat, date, location){
                 var Expenses = Parse.Object.extend("Expenses");
                 var expenses = new Expenses();
                 var category = new Parse.Object("Categories");
-                category.id = "kJdX3hg0Ze";
+                category.id = cat;
+                var User = new Parse.Object("_User");
+                User.id = moneyGuard.user.id;
                 var geoPoint = new Parse.GeoPoint(location);
+                //var acl = new Parse.ACL(User);
                 expenses.save({
-                    'Amount': 2.22,
-                    'Date': new Date(),
+                    'Amount': amount,
+                    'Date': date,
                     'Category': category,
-                    'Location': geoPoint
+                    'Location': geoPoint,
+                    'Person': User//,
+                    //'ACL': acl
+                }, {
+                    success: function(expenses) {
+                        $('#add-expense').removeClass('active');
+                        incrementClientAmount(amount, cat);
+                    },
+                    error: function(expenses, error) {
+                        console.log(error);
+                    }
                 });
             }
-            
+            function getLocation(){
+                
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        $('#add-expense').attr('data-location', [position.coords.latitude, position.coords.longitude]);
+                    });
+                } else {
+                    $('#add-expense').attr('data-location', [0,0]);
+                }
+            }
             function objectifyExpenses(expenses, timeRange){
                 var expensesObj = {};
                 var category;
@@ -200,10 +263,17 @@
                 setTimeout(function(){
                     $('#expenses').find('li').each(function(){
                         categoryId = $(this).attr('id');
-                        $(this).find('.' + timeRange).find('.spent').html(moneyGuard.expenses[timeRange][categoryId]);   
+                        $(this).find('.' + timeRange).find('.spent').html(Math.round(moneyGuard.expenses[timeRange][categoryId]));   
                     });
                     console.log(moneyGuard);
                 }, 100, timeRange);
+            }
+            function incrementClientAmount(amount, cat){
+                console.log(amount, cat); 
+                var monthCurrent = $('#' + cat).find('.month').find('.spent').html()*1;
+                var weekCurrent = $('#' + cat).find('.week').find('.spent').html()*1;
+                $('#' + cat).find('.month').find('.spent').html(Math.round(monthCurrent + amount));
+                $('#' + cat).find('.week').find('.spent').html(Math.round(weekCurrent + amount));
             }
             function getWeekStart() {
                 var startOfWeek = 1;
