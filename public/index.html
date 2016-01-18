@@ -68,7 +68,8 @@
             
             moneyGuard = {};
             moneyGuard.expenses = {};
-            moneyGuard.user = {};
+            moneyGuard.settings = {};
+            moneyGuard.settings.weekStart = 1;
             
             // Check to see if logged in
             checkIfLoggedIn();
@@ -85,7 +86,7 @@
                           var name = user[0].get("name");
                           var friends = user[0].get("friends");
                           $('#top-bar').find('.name').html(name);
-                          moneyGuard.user.name = name;
+                          moneyGuard.settings.name = name;
                           
                           // Get Friends List
                           var User = Parse.Object.extend("_User");
@@ -94,9 +95,9 @@
                             friendQuery.containedIn('username', friends);
                             friendQuery.find(function(r){
                                 console.log(r)
-                                moneyGuard.user.friends = r;
+                                moneyGuard.settings.friends = r;
                             });
-                          moneyGuard.user.friends = friends;
+                          moneyGuard.settings.friends = friends;
                       },
                       error: function(error) {
                         alert("Error: " + error.code + " " + error.message);
@@ -222,6 +223,18 @@
                 }
             });
             
+            $(document).ready(function(){
+                // Make past days buttons
+                var dayNumber = moneyGuard.settings.weekStart
+                for( var i = moneyGuard.settings.weekStart; i < moneyGuard.settings.weekStart + getDaysAheadOfWeekStart(); i++){
+                    if( dayNumber === 7){
+                        dayNumber = 0;  
+                    }
+                    console.log(dayAbbr(dayNumber));
+                    dayNumber++;
+                }
+            })
+            
             
             
             // FUNCTIONS
@@ -230,18 +243,16 @@
                 var expenses = new Expenses();
                 var category = new Parse.Object("Categories");
                 category.id = cat;
-               // var User = new Parse.Object("_User");
-                //User.id = moneyGuard.user.id;
                 var geoPoint = new Parse.GeoPoint(location);
                 
                 // Set ACL
                 var acl = new Parse.ACL();
                 acl.setWriteAccess( Parse.User.current(), true);
                 acl.setReadAccess( Parse.User.current(), true);
-                for(i=0; i < moneyGuard.user.friends.length; i++){
-                    console.log(moneyGuard.user.friends[i])
-                    acl.setWriteAccess( moneyGuard.user.friends[i], true);
-                    acl.setReadAccess( moneyGuard.user.friends[i], true);
+                for(i=0; i < moneyGuard.settings.friends.length; i++){
+                    console.log(moneyGuard.settings.friends[i])
+                    acl.setWriteAccess( moneyGuard.settings.friends[i], true);
+                    acl.setReadAccess( moneyGuard.settings.friends[i], true);
                 }
                 
                 acl.setPublicReadAccess(false);
@@ -302,10 +313,15 @@
                 $('#' + cat).find('.month').find('.spent').html(Math.round(monthCurrent + amount));
                 $('#' + cat).find('.week').find('.spent').html(Math.round(weekCurrent + amount));
             }
-            function getWeekStart() {
-                var startOfWeek = 1;
-                var currentDay = new Date().getDay();
+            function getWeekStart() {  
                 var timestamp = new Date().getTime();
+                millisecondsAhead = getDaysAheadOfWeekStart() * (24 * 60 * 60 * 1000); 
+                return new Date(new Date(timestamp - millisecondsAhead).setHours(0,0,0));
+            }
+            function getDaysAheadOfWeekStart(){
+                var startOfWeek = moneyGuard.settings.weekStart;
+                var currentDay = new Date().getDay();
+                
                 var daysAheadOfStart;
                 var millisecondsAhead;
                 
@@ -314,16 +330,17 @@
                 }else{
                     daysAheadOfStart = 7 - (startOfWeek - currentDay);
                 }
-                    
-                millisecondsAhead = daysAheadOfStart * (24 * 60 * 60 * 1000); 
-                return new Date(new Date(timestamp - millisecondsAhead).setHours(0,0,0));
+                return daysAheadOfStart;
             }
             
             function englishMonth(monthNum){
                 var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
                 return months[monthNum];
             }
-            
+            function dayAbbr(number){
+                var days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+                return days[number];
+            }
             
         </script>
   </body>
