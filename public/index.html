@@ -5,10 +5,10 @@
       <style>
           #top-bar{ background: black; }
           body > section{ display: none; }
-          .active{ display: block; }
           .selected{ border: 3px solid red; }
           .other-days{ display: none; }
           .spent:before{ content: '$'; }
+          .active{ display: block; }
       </style>
   </head>
   <body>
@@ -44,18 +44,14 @@
    </section>
       </section>
       <section id="main"> </section>
-      <section id="add-expense" data-category="">
+      <section id="add-expense" data-category="" data-time="">
           <h1></h1>
           <div class="amount-input">$<input type="number"></div>
           <div class="button-group">
-              <button type="button" class="selected">Today</button>
-              <button type="button">Other</button>
+              <button type="button" class="today-button selected">Today</button>
+              <button type="button" class="not-today-button">Other</button>
           </div>
-          <div class="button-group other-days">
-              <button>M</button>
-              <button>T</button>
-              <button>W</button>
-          </div>
+          <div class="button-group other-days"></div>
           <textarea class="notes"></textarea>
           <hr>
           <button type="button" id="save-button">Record It</button>
@@ -69,7 +65,7 @@
             moneyGuard = {};
             moneyGuard.expenses = {};
             moneyGuard.settings = {};
-            moneyGuard.settings.weekStart = 1;
+            moneyGuard.settings.weekStart = 0;
             
             // Check to see if logged in
             checkIfLoggedIn();
@@ -215,27 +211,57 @@
                 getLocation();
             }).on('click', '#save-button', function(){
                 var amount = $('#add-expense').find('.amount-input input').val()*1;
+                var time = $('#add-expense').attr('data-time');
+                if( time === ''){
+                    time = new Date();   
+                }else{
+                    time = new Date(new Date().setTime(time));
+                }
+                console.log(time);
                 if( amount <= 0 ){
                     alert('Something is wrong with your expense amount.');
                 }else{
-                    var latLong = $('#add-expense').attr('data-location').split(',');
-                    addExpense(amount, $('#add-expense').attr('data-category'), new Date(), [latLong[0]*1, latLong[1]*1], $('#add-expense').find('.notes').val()); 
+                    var latLong;
+                    if( typeof($('#add-expense').attr('data-location')) !== 'undefined' ){
+                        latLong = $('#add-expense').attr('data-location').split(',');
+                        latLong = [latLong[0]*1, latLong[1]*1];
+                    }else{
+                        latLong = [0,0];
+                    }
+                    
+                    addExpense(amount, $('#add-expense').attr('data-category'), time, latLong, $('#add-expense').find('.notes').val()); 
                 }
+            }).on('click', '.button-group button', function(){
+                var $this = $(this);
+                $this.siblings().removeClass('selected');
+                $this.addClass('selected');
+            }).on('click', '.not-today-button', function(){
+                $('.other-days').addClass('active');   
+            }).on('click', '.today-button', function(){
+                $('.other-days').removeClass('active');   
+            }).on('click', '[data-time-ago]', function(){
+                $('#add-expense').attr('data-time', $(this).attr('data-time-ago'));
             });
             
             $(document).ready(function(){
                 // Make past days buttons
-                var dayNumber = moneyGuard.settings.weekStart
+                var dayNumber = moneyGuard.settings.weekStart;
+                var timestamp = new Date().getTime();
+                var oneDay = 24 * 60 * 60 * 1000;
+                var timeAgo;
+                var buttonsHtml = '';
+                var j= 0;
                 for( var i = moneyGuard.settings.weekStart; i < moneyGuard.settings.weekStart + getDaysAheadOfWeekStart(); i++){
                     if( dayNumber === 7){
                         dayNumber = 0;  
                     }
-                    console.log(dayAbbr(dayNumber));
+                    timeAgo = timestamp - ((getDaysAheadOfWeekStart() - j) * oneDay);
+                    buttonsHtml += '<button data-time-ago="' + timeAgo + '">' + dayAbbr(dayNumber) + '</button>';
                     dayNumber++;
+                    j++
                 }
+                $('.other-days').html(buttonsHtml);
             })
-            
-            
             
             // FUNCTIONS
             function addExpense(amount, cat, date, location, notes){
