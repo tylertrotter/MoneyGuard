@@ -1,0 +1,6 @@
+#top-bar{ background: black; }
+body > section{ display: none; }
+.selected{ border: 3px solid red; }
+.other-days{ display: none; }
+.spent:before{ content: '$'; }
+.active{ display: block; }
