@@ -87,9 +87,10 @@ function addCategoryHTML(){
 				weekBudget = Math.round(cat.get('Budget') / 4.3333333);
 				expensesObj[cat.id] = {};
 				expensesObj[cat.id].expenses = [];
+				expensesObj[cat.id].name = cat.get('Name');
 				expensesObj[cat.id].total = 0;
 
-				html += '<li id="' + cat.id + '"><button>+</button><span class="category">' + cat.get('Name') + '</span>';
+				html += '<li id="' + cat.id + '"><button>+</button><span clas"category">' + cat.get('Name') + '</span>';
 				html += '<div class="cat-total"><span class="spent">0</span><span>$' + weekBudget + '</span></div>';
 				html += '<div class="progress-bar-container">';
 				html += 	'<span class="amount-left"></span><div class="empty-bar"><div class="filled-bar" data-budget="' + weekBudget + '"></div></div>';
@@ -179,7 +180,7 @@ $(document).on('click', '#signup-button', function(){
             latLong = [0,0];
         }
 
-        addExpense(amount, $('#add-expense').attr('data-category'), time, latLong, $('#add-expense').find('.notes').val()); 
+        addExpense(amount, $('#add-expense').attr('data-category'), time, latLong, $('#add-expense').find('.notes textarea').val()); 
     }
 }).on('click', '.button-group button', function(){
     var $this = $(this);
@@ -196,8 +197,11 @@ $(document).on('click', '#signup-button', function(){
     $(this).parent().removeClass('active');
 }).on('click', '.notes button', function(){
     $(this).next().toggleClass('active').focus();
-});
-
+}).on('click', '.toggle-list-view', function(){
+    $('#main').toggleClass('active');
+	$('#list-view').toggleClass('active');
+})
+;
 $(document).ready(function(){
     // Make past days buttons
     var dayNumber = moneyGuard.settings.weekStart;
@@ -236,7 +240,7 @@ function addExpense(amount, cat, date, location, notes){
 
     acl.setPublicReadAccess(false);
     expenses.setACL(acl);
-
+	console.log(notes);
     expenses.save({
         'Amount': amount,
         'Date': date,
@@ -271,7 +275,7 @@ function objectifyExpenses(expenses, timeRange){
 		amount = expenses[i].get('Amount');
         category = expenses[i].get('Category').id;
 		objCat = moneyGuard.expenses[timeRange][category];
-        objCat.expenses.push({id: expenses[i].id, amount: amount, date: expenses[i].get('Date')})
+        objCat.expenses.push({id: expenses[i].id, amount: amount, date: expenses[i].get('Date'), location: expenses[i].get('Location'), notes: expenses[i].get('Notes'), person: expenses[i].get('Person')})
         objCat.total = objCat.total + amount;
     }
 	populateUi('week');
@@ -321,6 +325,7 @@ function populateUi(timeRange){
 		$(this).find('.progress-bar-container').append(html);
 	});
 	addDayMarker();
+	populateListUi();
 }
 function incrementClientAmount(amount, cat, date){
 	moneyGuard.expenses.week[cat].expenses.push({id: 'x', amount: amount, date: date})
@@ -356,4 +361,29 @@ function dayAbbr(number){
 function addDayMarker(){
 	width = (getDaysAheadOfWeekStart() * (100/7)) + '%';
 	$('#expenses').append('<div class="day-marker" style="width: ' + width + '"></div>')
+}
+function populateListUi(){
+	console.log(moneyGuard);
+	var weekObj = moneyGuard.expenses.week;
+	var html = '<ul>';
+	for(var cat in weekObj) {
+		if (weekObj.hasOwnProperty(cat)) {
+			html += '<li>' + weekObj[cat].name;
+			html += '<ul>';
+			for (var i = 0; i < weekObj[cat].expenses.length; i++){
+				var exp = weekObj[cat].expenses[i];
+        		html += '<li>';
+				html += '<a class="list-view-map">M</a>';
+				html += '<h3 class="list-view-name">' + exp.person.id + '</h3>';
+				html += '<p class="list-view-date">' + exp.date + '</p>';
+				html += '<p class="list-view-notes">' + exp.notes + '</p>';
+				html += '<span class="list-view-amount">' + exp.amount + '</span>';
+				html += '<a class="edit-expense">E</a>';
+				html += '</li>';
+			}
+			html += '</ul></li>';
+    	}	
+	}
+	html += '</ul>';
+	$('#list-view').html(html);
 }

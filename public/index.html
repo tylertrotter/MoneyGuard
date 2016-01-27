@@ -1,18 +1,18 @@
 <!doctype html>
 <html lang="en">
-  <head>
-	  <meta charset="utf-8">
-      <meta http-equiv="x-ua-compatible" content="ie=edge">
-	  <title>MoneyGuard</title>
-	  <meta name="viewport" content="width=device-width, initial-scale=1">
-	  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-      <link rel="stylesheet" href="css/main.css">
-      <link rel="stylesheet" href="css/normalize.css">
-	  <link href='https://fonts.googleapis.com/css?family=Raleway:400,700,900,300' rel='stylesheet' type='text/css'>
-      <script src="http://www.parsecdn.com/js/parse-1.6.14.min.js"></script>
-  </head>
-  <body>
-      <div id="top-bar">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<title>MoneyGuard</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="apple-touch-icon" href="apple-touch-icon.png">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/normalize.css">
+		<link href='https://fonts.googleapis.com/css?family=Raleway:400,700,900,300' rel='stylesheet' type='text/css'>
+		<script src="http://www.parsecdn.com/js/parse-1.6.14.min.js"></script>
+	</head>
+	<body>
+		<div id="top-bar">
 		  <span id="logo">MoneyGuard</span>
           <!--<img src="http://placehold.it/30x30" id="logo">
           <a class="name"></a>
@@ -20,34 +20,36 @@
 			-->
 		  <a class="name"></a>
       </div>
-      <section id="login-signup" class="wrapper">
-          <section id="signup">
-          <h1>Signup</h1>
-            <div>
-                <label>Email</label>
-                <input type="email">
-            </div>
-            <div>
-                <label>Password</label>
-                <input type="password">
-            </div>
-            <button id="signup-button" type="button">Sign up</button>
-          </section>
-          <section id="login">
-      <h1>Login</h1>
-       <div>
-            <label>Email</label>
-            <input type="email">
-        </div>
-        <div>
-            <label>Password</label>
-            <input type="password">
-        </div>
-        <button id="login-button" type="button">Login</button>
-   </section>
-      </section>
-      <section id="main" class="wrapper"> </section>
-      <section class="add-expense-template" data-category="" data-time="">
+		<nav id="main-nav"><a href="#list" class="toggle-list-view">list/month</a></nav>
+		<section id="login-signup" class="wrapper">
+		  <section id="signup">
+		  <h1>Signup</h1>
+			<div>
+				<label>Email</label>
+				<input type="email">
+			</div>
+			<div>
+				<label>Password</label>
+				<input type="password">
+			</div>
+			<button id="signup-button" type="button">Sign up</button>
+		  </section>
+		  <section id="login">
+		<h1>Login</h1>
+		<div>
+			<label>Email</label>
+			<input type="email">
+		</div>
+		<div>
+			<label>Password</label>
+			<input type="password">
+		</div>
+		<button id="login-button" type="button">Login</button>
+		</section>
+		</section>
+		<section id="main" class="wrapper"> </section>
+		<section id="list-view" class="wrapper">list view</section>
+		<section class="add-expense-template" data-category="" data-time="">
 		  <button type="button" class="cancel">cancel</button>
 		  <div class="wrapper">
 			  <h1></h1>
@@ -65,10 +67,10 @@
 			  </div>
 			  <button type="button" id="save-button" class="important">Record It</button>
 		  </div>
-      </section>
-      <section id="settings"></section>
-      
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-        <script src="js/main.js"></script>
-    </body>
+		</section>
+		<section id="settings"></section>
+		
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script src="js/main.js"></script>
+	</body>
 </html>
