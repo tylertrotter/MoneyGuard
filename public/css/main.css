@@ -1,6 +1,62 @@
-#top-bar{ background: black; }
+/*
+green: #159f36
+red: #eb2700
+*/
+*{ box-sizing: border-box; }
+body{ font-family: 'Raleway', sans-serif; }
+.wrapper{ padding: 0 16px; max-width: 900px; margin: 0 auto; }
+#top-bar{ background: #159f36; font-size: .875em; padding: .2em; color: white; text-align: right; }
+#logo{ float: left; font-weight: 600; }
+#top-bar a{ color: white; text-decoration: none; }
 body > section{ display: none; }
-.selected{ border: 3px solid red; }
+.selected{ border: 1px solid #159f36; color: #159f36; box-shadow: 0 0 3px #159f36; opacity: 1 !important; }
 .other-days{ display: none; }
 .spent:before{ content: '$'; }
-.active{ display: block; }
+.active{ display: block; opacity: 1; }
+button{ border: 1px solid gray; background: white; border-radius: 5px; padding: .3em .5em; outline: none; }
+button.important{ font-size: 2em; border: 1px solid #eb2700; color: #eb2700; }
+button.small{ font-size: .7em; color: #aaa; border-color: #aaa; }
+
+#expenses{ margin: 0; padding: 0; position: relative; }
+#expenses li{ position: relative; list-style: none; padding: .75em 0; border-bottom: 1px solid #eee; }
+.cat-total{ position: absolute; top: 0; right: 0; display: none; }
+
+#expenses button{ border-radius: 50%; width: 1em; height: 1em; line-height: 1; background: white; vertical-align: top; border: 1px solid #159f36; color: #159f36; font-size: 2.5em; font-weight: 300; outline: none; margin-right: .2em; padding: 0; }
+#expenses .category{ font-size: 1.5em; font-weight: 600; display: inline-block; margin-top: .25em; }
+
+.progress-bar-container{ min-height: 45px; text-align: right; margin-top: -8px; }
+.empty-bar{ background: repeating-linear-gradient(90deg, #eee, #eee 13.85%, #777 14.35%); overflow: hidden; }
+@media (min-width: 500px){
+	.empty-bar{ background: repeating-linear-gradient(90deg, #eee, #eee 13.95%, #777 14.25%);  }
+}@media (min-width: 700px){
+	.empty-bar{ background: repeating-linear-gradient(90deg, #eee, #eee 14%, #777 14.2%);  }
+}
+.filled-bar{ width: 0; height: 7px; background: #159f36; opacity: .6; }
+.amount-left{ color: #159f36; font-size: .8em; font-weight: 600; }
+.caution .filled-bar{ background: orange; }
+.caution .amount-left{ color: orange; }
+.fail .filled-bar{ background: #eb2700; }
+.fail .amount-left{ color: #eb2700; }
+.progress-bar-container [class^='day-']{ position: absolute; background: #282828; color: white; width: 30px; border-radius: 3px; font-size: .7em; text-align: center; padding: .1em; margin-left: -15px; margin-top: 5px; }
+.progress-bar-container [class^='day-']:before{ content: ''; display: block; margin: 0 auto; margin-top: -6px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 5px solid #282828; }
+.progress-bar-container [data-number]:after{ content: '>***'; display: block; font-size: 1.3em; line-height: 1; height: .4em; color: #8affa6; }
+.progress-bar-container [data-number="1"]:after{ display: none; }
+.progress-bar-container [data-number="2"]:after{ content: '**'; }
+.progress-bar-container [data-number="3"]:after{ content: '***'; }
+
+.day-marker{ position: absolute; left: 0; top: 0; height: 100%; border-right: 1px solid black; opacity: .05; z-index: -1; }
+
+#add-expense{ position: absolute; top: 0; left: 0; background: rgba(0,0,0,.8); width: 100%; height: 100%; }
+section button.cancel{ margin-left: auto; display: block; background: transparent; border: none; color: white; }
+#add-expense .wrapper{ width: 80%; max-width: 500px;  margin: 0 auto; background: white; padding: 16px; }
+#add-expense h1{ margin: 0; font-size: 1em; }
+.amount-input{ font-size: 3em; text-align: center; margin: 16px; }
+.amount-input input{ width: 2.8em; padding-left: .2em; padding-right: .2em; }
+.day-buttons{ text-align: center; margin-bottom: 16px; }
+.day-buttons button{ opacity: .4; }
+.other-days button{ margin: .2em; font-size: .8em; margin-top: .5em; border-radius: 50%; width: 2.5em; height: 2.5em; line-height: 1.9em; text-align: center; }
+#save-button{ display: block; width: 90%; margin: 0 auto; }
+.notes{ margin-bottom: 16px; }
+.notes textarea{ width: 100%; border: 1px solid #aaa; display: none; }
+.notes textarea.active{ display: block; }
+.notes button{ display: block; margin: 0 auto 3px auto; }
