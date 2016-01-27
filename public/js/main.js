@@ -90,7 +90,7 @@ function addCategoryHTML(){
 				expensesObj[cat.id].name = cat.get('Name');
 				expensesObj[cat.id].total = 0;
 
-				html += '<li id="' + cat.id + '"><button>+</button><span clas"category">' + cat.get('Name') + '</span>';
+				html += '<li id="' + cat.id + '"><button>+</button><span class="category">' + cat.get('Name') + '</span>';
 				html += '<div class="cat-total"><span class="spent">0</span><span>$' + weekBudget + '</span></div>';
 				html += '<div class="progress-bar-container">';
 				html += 	'<span class="amount-left"></span><div class="empty-bar"><div class="filled-bar" data-budget="' + weekBudget + '"></div></div>';
