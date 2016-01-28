@@ -4,6 +4,7 @@ moneyGuard = {};
 moneyGuard.expenses = {};
 moneyGuard.settings = {};
 moneyGuard.settings.weekStart = 0;
+moneyGuard.settings.friends = [];
 
 // Check to see if logged in
 checkIfLoggedIn();
@@ -23,20 +24,24 @@ function checkIfLoggedIn(){
 
               // Get Friends List
               var User = Parse.Object.extend("_User");
-                var user = new User();
-                var friendQuery = new Parse.Query(user);
-                friendQuery.containedIn('username', friends);
-                friendQuery.find(function(r){
-                    moneyGuard.settings.friends = r;
-                });
-              moneyGuard.settings.friends = friends;
+              var user = new User();
+              var friendQuery = new Parse.Query(user);
+              friendQuery.containedIn('username', friends);
+              friendQuery.find(function(r){
+				  for( var i = 0; i < r.length; r++){
+					  moneyGuard.settings.friends.push(r[i]);
+					  moneyGuard.settings.friends[i].name = r[i].get('name');
+				  }
+			
+			  });
+			  addCategoryHTML();
+			$('#main').addClass('active').siblings().removeClass('active');
           },
           error: function(error) {
             alert("Error: " + error.code + " " + error.message);
             }
         });
-		addCategoryHTML();
-        $('#main').addClass('active').siblings().removeClass('active');
+		
     }
 }
 
@@ -233,6 +238,7 @@ function addExpense(amount, cat, date, location, notes){
     var acl = new Parse.ACL();
     acl.setWriteAccess( Parse.User.current(), true);
     acl.setReadAccess( Parse.User.current(), true);
+	console.log();
     for(i=0; i < moneyGuard.settings.friends.length; i++){
         acl.setWriteAccess( moneyGuard.settings.friends[i], true);
         acl.setReadAccess( moneyGuard.settings.friends[i], true);
@@ -365,6 +371,7 @@ function addDayMarker(){
 function populateListUi(){
 	console.log(moneyGuard);
 	var weekObj = moneyGuard.expenses.week;
+	var friends = moneyGuard.settings.friends;
 	var html = '<ul>';
 	for(var cat in weekObj) {
 		if (weekObj.hasOwnProperty(cat)) {
@@ -372,10 +379,19 @@ function populateListUi(){
 			html += '<ul>';
 			for (var i = 0; i < weekObj[cat].expenses.length; i++){
 				var exp = weekObj[cat].expenses[i];
+				
+				for( var f = 0; f < friends.length; f++){
+					console.log(friends[f]);
+					if( exp.person.id === friends[f].id){
+						buyer = friends[f].name;
+					}else{
+						buyer = moneyGuard.settings.name;	
+					}
+				}
         		html += '<li>';
 				html += '<a class="list-view-map">M</a>';
-				html += '<h3 class="list-view-name">' + exp.person.id + '</h3>';
-				html += '<p class="list-view-date">' + exp.date + '</p>';
+				html += '<h3 class="list-view-name">' + buyer + '</h3>';
+				html += '<p class="list-view-date">' + formatDate(exp.date) + '</p>';
 				html += '<p class="list-view-notes">' + exp.notes + '</p>';
 				html += '<span class="list-view-amount">' + exp.amount + '</span>';
 				html += '<a class="edit-expense">E</a>';
@@ -386,4 +402,12 @@ function populateListUi(){
 	}
 	html += '</ul>';
 	$('#list-view').html(html);
+}
+function formatDate(date){
+	var day = dayAbbr(date.getDay());
+	var month = englishMonth(date.getMonth());
+	var dateNum = date.getDate();
+	var year = date.getFullYear();
+	var time = date.getHours() + ':' + date.getMinutes();
+	return day + ', ' + month + ' ' + dateNum + ', ' + year + ' at ' + time;
 }

@@ -17,7 +17,7 @@ button{ border: 1px solid gray; background: white; border-radius: 5px; padding: 
 button.important{ font-size: 2em; border: 1px solid #eb2700; color: #eb2700; }
 button.small{ font-size: .7em; color: #aaa; border-color: #aaa; }
 
-#main-nav{ background: black; color: white; padding: .5em; font-size: .8em; display: none; }
+#main-nav{ background: black; color: white; padding: .5em; font-size: .8em; }
 #main-nav a{ color: white; }
 
 #expenses{ margin: 0; padding: 0; position: relative; }
