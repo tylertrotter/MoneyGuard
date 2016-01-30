@@ -1,3 +1,8 @@
+var isChrome = navigator.userAgent.toLowerCase().indexOf('crios') > -1;
+if( !isChrome ){
+	location.href = 'googlechrome' + location.href.substring(4);
+}
+
 Parse.initialize("trhHaGuuYNlb5Xh1tLPfala0t1TuW6LynFURnMR2", "dEUhUrIUbdSk89pnWAwb4zwhYx3LTxskmC82lPC7"); 
             
 moneyGuard = {};
@@ -35,7 +40,8 @@ function checkIfLoggedIn(){
 			
 			  });
 			  addCategoryHTML();
-			$('#main').addClass('active').siblings().removeClass('active');
+			$('#main').addClass('active').siblings('section').removeClass('active');
+			$('#main-nav').addClass('active');
           },
           error: function(error) {
             alert("Error: " + error.code + " " + error.message);
@@ -163,6 +169,7 @@ $(document).on('click', '#signup-button', function(){
 	addExpenseClone = $('.add-expense-template').clone();
 	$('.add-expense-template').after(addExpenseClone.attr('id', 'add-expense'))
     addExpenseClone.find('h1').html(categoryName);
+	$('html,body').scrollTop(0);
     addExpenseClone.addClass('active').attr('data-category', $(this).parents('li').attr('id')); 
     addExpenseClone.find('.amount-input input').focus();
     getLocation();
@@ -204,6 +211,7 @@ $(document).on('click', '#signup-button', function(){
     $(this).next().toggleClass('active').focus();
 }).on('click', '.toggle-list-view', function(){
     $('#main').toggleClass('active');
+	$(this).toggleClass('on');
 	$('#list-view').toggleClass('active');
 })
 ;
@@ -220,7 +228,7 @@ $(document).ready(function(){
             dayNumber = 0;  
         }
         timeAgo = timestamp - ((getDaysAheadOfWeekStart() - j) * oneDay);
-        buttonsHtml += '<button data-time-ago="' + timeAgo + '">' + dayAbbr(dayNumber) + '</button>';
+        buttonsHtml += '<button data-time-ago="' + timeAgo + '">' + getDayWord(dayNumber, true) + '</button>';
         dayNumber++;
         j++
     }
@@ -238,7 +246,6 @@ function addExpense(amount, cat, date, location, notes){
     var acl = new Parse.ACL();
     acl.setWriteAccess( Parse.User.current(), true);
     acl.setReadAccess( Parse.User.current(), true);
-	console.log();
     for(i=0; i < moneyGuard.settings.friends.length; i++){
         acl.setWriteAccess( moneyGuard.settings.friends[i], true);
         acl.setReadAccess( moneyGuard.settings.friends[i], true);
@@ -246,7 +253,6 @@ function addExpense(amount, cat, date, location, notes){
 
     acl.setPublicReadAccess(false);
     expenses.setACL(acl);
-	console.log(notes);
     expenses.save({
         'Amount': amount,
         'Date': date,
@@ -360,8 +366,12 @@ function englishMonth(monthNum){
     var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return months[monthNum];
 }
-function dayAbbr(number){
-    var days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+function getDayWord(number, abbr){
+	if( abbr ){
+    	var days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+	}else{
+		var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];	
+	}
     return days[number];
 }
 function addDayMarker(){
@@ -369,19 +379,22 @@ function addDayMarker(){
 	$('#expenses').append('<div class="day-marker" style="width: ' + width + '"></div>')
 }
 function populateListUi(){
-	console.log(moneyGuard);
 	var weekObj = moneyGuard.expenses.week;
 	var friends = moneyGuard.settings.friends;
 	var html = '<ul>';
 	for(var cat in weekObj) {
 		if (weekObj.hasOwnProperty(cat)) {
-			html += '<li>' + weekObj[cat].name;
+			html += '<li><h2>' + weekObj[cat].name + '</h2>';
 			html += '<ul>';
 			for (var i = 0; i < weekObj[cat].expenses.length; i++){
 				var exp = weekObj[cat].expenses[i];
-				
+				var lat;
+				var long;
+				if( typeof(exp.location) !== 'undefined' ){
+					lat = exp.location._latitude;
+					long = exp.location._longitude;
+				}
 				for( var f = 0; f < friends.length; f++){
-					console.log(friends[f]);
 					if( exp.person.id === friends[f].id){
 						buyer = friends[f].name;
 					}else{
@@ -389,10 +402,14 @@ function populateListUi(){
 					}
 				}
         		html += '<li>';
-				html += '<a class="list-view-map">M</a>';
+				if( isValidGeoPoint(lat, long) ){
+					html += '<a class="list-view-map" href="https://www.google.com/maps/@' + exp.location._latitude + ',' + exp.location._longitude + ',18z/data=!4m2!3m1!1s0x0:0x0" target="_blank"></a>';
+				}
 				html += '<h3 class="list-view-name">' + buyer + '</h3>';
 				html += '<p class="list-view-date">' + formatDate(exp.date) + '</p>';
-				html += '<p class="list-view-notes">' + exp.notes + '</p>';
+				if( exp.notes.length > 0 ){
+					html += '<p class="list-view-notes">' + exp.notes + '</p>';
+				}
 				html += '<span class="list-view-amount">' + exp.amount + '</span>';
 				html += '<a class="edit-expense">E</a>';
 				html += '</li>';
@@ -403,11 +420,29 @@ function populateListUi(){
 	html += '</ul>';
 	$('#list-view').html(html);
 }
+
+function isValidGeoPoint(lat,long){
+	if( (Math.abs(lat) + ' ').length > 17 && (Math.abs(long) + ' ').length > 17){
+		return true;	
+	}else{
+		return false;	
+	}
+}
 function formatDate(date){
-	var day = dayAbbr(date.getDay());
+	var day = getDayWord(date.getDay(), false);
 	var month = englishMonth(date.getMonth());
 	var dateNum = date.getDate();
 	var year = date.getFullYear();
-	var time = date.getHours() + ':' + date.getMinutes();
+	if( date.getHours() > 12 ){
+		var convertedHours = date.getHours() - 12;	
+		var amPm = 'pm';
+	}else if(date.getHours() === 12){
+		var convertedHours = date.getHours();	
+		var amPm = 'midday';
+	}else{
+		var convertedHours = date.getHours();	
+		var amPm = 'am';
+	}
+	var time = convertedHours + ':' + date.getMinutes() + ' ' + amPm;
 	return day + ', ' + month + ' ' + dateNum + ', ' + year + ' at ' + time;
 }
