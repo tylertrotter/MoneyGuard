@@ -39,8 +39,9 @@ function checkIfLoggedIn(){
 				  }
 			
 			  });
+			  
 			  addCategoryHTML();
-			$('#main').addClass('active').siblings('section').removeClass('active');
+			$('#progress-view').addClass('active').siblings('section').removeClass('active');
 			$('#main-nav').addClass('active');
           },
           error: function(error) {
@@ -90,30 +91,50 @@ function addCategoryHTML(){
 	categoriesQuery.find({
 		success: function(categories){
 			var html = '';
-			var expensesObj = {};
+			var monthHtml = '';
+			var weekExpensesObj = {};
+			var monthExpensesObj = {};
 			var cat;
 			var weekBudget;
+			var monthBudget;
+			
 			for (var i = 0; i < categories.length; i++) {
 				cat = categories[i];
-				weekBudget = Math.round(cat.get('Budget') / 4.3333333);
-				expensesObj[cat.id] = {};
-				expensesObj[cat.id].expenses = [];
-				expensesObj[cat.id].name = cat.get('Name');
-				expensesObj[cat.id].total = 0;
+				monthBudget = cat.get('Budget');
+				weekBudget = Math.round(monthBudget / 4.3333333);
+				weekExpensesObj[cat.id] = {};
+				weekExpensesObj[cat.id].expenses = [];
+				weekExpensesObj[cat.id].name = cat.get('Name');
+				weekExpensesObj[cat.id].total = 0;
+				
+				monthExpensesObj[cat.id] = {};
+				monthExpensesObj[cat.id].expenses = [];
+				monthExpensesObj[cat.id].name = cat.get('Name');
+				monthExpensesObj[cat.id].total = 0;
 
-				html += '<li id="' + cat.id + '"><button>+</button><span class="category">' + cat.get('Name') + '</span>';
+				html += '<li data-cat-id="' + cat.id + '"><button>+</button><span class="category">' + cat.get('Name') + '</span>';
 				html += '<div class="cat-total"><span class="spent">0</span><span>$' + weekBudget + '</span></div>';
 				html += '<div class="progress-bar-container">';
 				html += 	'<span class="amount-left"></span><div class="empty-bar"><div class="filled-bar" data-budget="' + weekBudget + '"></div></div>';
 				html += '</div>';
-				//html += '<div class="month"><span class="spent">0</span><span>$' + cat.get('Budget') + '</span></div>';
 				html += '</li>';
+				
+				monthHtml += '<li data-cat-id="' + cat.id + '"><button>+</button><span class="category">' + cat.get('Name') + '</span>';
+				monthHtml += '<div class="cat-total"><span class="spent">0</span><span>$' + monthBudget + '</span></div>';
+				monthHtml += '<div class="progress-bar-container">';
+				monthHtml += 	'<span class="amount-left"></span><div class="empty-bar"><div class="filled-bar" data-budget="' + monthBudget + '"></div></div>';
+				monthHtml += '</div>';
+				monthHtml += '</li>';
+				
 			}
-
+			$('#progress-view').find('.week').html(html);
+			$('#progress-view').find('.month').html(monthHtml);
 			// Add categories to Object
-			moneyGuard.expenses.week = expensesObj;
-			moneyGuard.expenses.month = expensesObj;
+			moneyGuard.expenses.week = weekExpensesObj;
+			moneyGuard.expenses.month = monthExpensesObj;
 
+			var expenses = Parse.Object.extend("Expenses");
+			
 			// Week
 			var weekQuery = new Parse.Query(expenses);
 			weekQuery.greaterThanOrEqualTo("Date", getWeekStart());
@@ -125,9 +146,22 @@ function addCategoryHTML(){
 				alert("Error: " + error.code + " " + error.message);
 				}   
 			});
+			
+			var monthExpenses = Parse.Object.extend("Expenses");
+			
+			// Month
+			var monthQuery = new Parse.Query(monthExpenses);
+			monthQuery.greaterThanOrEqualTo("Date", currentMonthDateObj);
+			monthQuery.find({
+			  success: function(exp){
+				objectifyExpenses(exp, 'month');
+			  },
+			  error: function(error) {
+				alert("Error: " + error.code + " " + error.message);
+				}   
+			});
 
-			$('#main').html('<ul id="expenses">' + html + '</ul>');
-
+			
 	  },
 	  error: function(error) {
 		alert("Error: " + error.code + " " + error.message);
@@ -142,29 +176,14 @@ var currentMonth = englishMonth(new Date().getMonth());
 var currentDayOfWeek = new Date().getDay();
 var currentMonthDateObj = new Date(currentMonth + ' 1, ' + currentYear + ' 00:00:00');
 
-// Expenses
-var expenses = Parse.Object.extend("Expenses");
 
-// Month
-var monthQuery = new Parse.Query(expenses);
-monthQuery.greaterThanOrEqualTo("Date", currentMonthDateObj);
-
-// Calculate monthly expenses
-monthQuery.find({
-  success: function(expenses){
-    //objectifyExpenses(expenses, 'month');
-  },
-  error: function(error1) {
-    alert("Error: " + error.code + " " + error.message);
-    }   
-});
 
 // Events
 $(document).on('click', '#signup-button', function(){
    signUp($('#signup').find('[type=email]').val(), $('#signup').find('[type=password]').val()); 
 }).on('click', '#login-button', function(){
    logIn($('#login').find('[type=email]').val(), $('#login').find('[type=password]').val()); 
-}).on('click', '#main button', function(){
+}).on('click', '#progress-view button', function(){
     var categoryName = $(this).parents('li').find('.category').html();
 	addExpenseClone = $('.add-expense-template').clone();
 	$('.add-expense-template').after(addExpenseClone.attr('id', 'add-expense'))
@@ -210,7 +229,7 @@ $(document).on('click', '#signup-button', function(){
 }).on('click', '.notes button', function(){
     $(this).next().toggleClass('active').focus();
 }).on('click', '.toggle-list-view', function(){
-    $('#main').toggleClass('active');
+    $('#progress-view').toggleClass('active');
 	$(this).toggleClass('on');
 	$('#list-view').toggleClass('active');
 })
@@ -287,10 +306,13 @@ function objectifyExpenses(expenses, timeRange){
 		amount = expenses[i].get('Amount');
         category = expenses[i].get('Category').id;
 		objCat = moneyGuard.expenses[timeRange][category];
+		
         objCat.expenses.push({id: expenses[i].id, amount: amount, date: expenses[i].get('Date'), location: expenses[i].get('Location'), notes: expenses[i].get('Notes'), person: expenses[i].get('Person')})
         objCat.total = objCat.total + amount;
     }
+	
 	populateUi('week');
+	populateUi('month');
 }
 function populateUi(timeRange){
 	var categoryId;
@@ -299,10 +321,12 @@ function populateUi(timeRange){
 	var percentSpent;
 	var $filledBar;
 	var objExp;
-	$('#expenses').find('li').each(function(){
+	
+	$('.expenses.' + timeRange).find('li').each(function(){
 		$filledBar = $(this).find('.filled-bar');
-		categoryId = $(this).attr('id');
-		objExp = moneyGuard.expenses.week[categoryId].expenses;
+		categoryId = $(this).attr('data-cat-id');
+		
+		objExp = moneyGuard.expenses[timeRange][categoryId].expenses;
 		catTotalSpent = Math.round(moneyGuard.expenses[timeRange][categoryId].total);
 		catBudget = $filledBar.attr('data-budget')*1;
 		percentSpent = (catTotalSpent / catBudget) * 100;
@@ -376,7 +400,7 @@ function getDayWord(number, abbr){
 }
 function addDayMarker(){
 	width = (getDaysAheadOfWeekStart() * (100/7)) + '%';
-	$('#expenses').append('<div class="day-marker" style="width: ' + width + '"></div>')
+	$('.week.expenses').append('<div class="day-marker" style="width: ' + width + '"></div>')
 }
 function populateListUi(){
 	var weekObj = moneyGuard.expenses.week;
@@ -420,7 +444,6 @@ function populateListUi(){
 	html += '</ul>';
 	$('#list-view').html(html);
 }
-
 function isValidGeoPoint(lat,long){
 	if( (Math.abs(lat) + ' ').length > 17 && (Math.abs(long) + ' ').length > 17){
 		return true;	
