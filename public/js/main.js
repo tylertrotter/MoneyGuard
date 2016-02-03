@@ -42,6 +42,7 @@ function checkIfLoggedIn(){
 			  
 			  addCategoryHTML();
 			$('#progress-view').addClass('active').siblings('section').removeClass('active');
+			 $('#progress-view').find('.week.expenses').addClass('active');
 			$('#main-nav').addClass('active');
           },
           error: function(error) {
@@ -354,13 +355,13 @@ function populateUi(timeRange){
 		}
 		var html = '';
 		for(d = 0; d <= 6; d++){
-			if( expensesByDay[d] > 0 ){
+			if( expensesByDay[d] > 0 && timeRange === 'week'){
 				html += '<div class="day-' + d + '" data-number="' + numOfExpensesByDay[d] + '" style="left: ' + d * (100/7) + '%;">$' + expensesByDay[d] + '</div>';
 			}
 		}
 		$(this).find('.progress-bar-container').append(html);
 	});
-	addDayMarker();
+	addDayMarker(timeRange);
 	populateListUi();
 }
 function incrementClientAmount(amount, cat, date){
@@ -386,6 +387,17 @@ function getDaysAheadOfWeekStart(){
     }
     return daysAheadOfStart;
 }
+function getDaysAheadOfMonthStart(){
+ 	var startOfMonth = 1;
+    var currentDay = new Date().getDate(); 
+    return currentDay - startOfMonth;
+}
+function getDaysInMonth(){
+	var today = new Date();
+	var year = today.getFullYear();
+	var month = today.getMonth() + 1;
+	return new Date(year, month, 0).getDate();
+}
 function englishMonth(monthNum){
     var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return months[monthNum];
@@ -398,9 +410,15 @@ function getDayWord(number, abbr){
 	}
     return days[number];
 }
-function addDayMarker(){
-	width = (getDaysAheadOfWeekStart() * (100/7)) + '%';
-	$('.week.expenses').append('<div class="day-marker" style="width: ' + width + '"></div>')
+function addDayMarker(timeRange){
+	console.log(getDaysInMonth())
+	if( timeRange === 'week' ){
+		width = (getDaysAheadOfWeekStart() * (100/7)) + '%';
+		$('.week.expenses').append('<div class="day-marker" style="width: ' + width + '"></div>');
+	}else if( timeRange === 'month' ){
+		width = (getDaysAheadOfMonthStart() * (100/getDaysInMonth())) + '%';
+		$('.month.expenses').append('<div class="day-marker" style="width: ' + width + '"></div>');
+	}
 }
 function populateListUi(){
 	var weekObj = moneyGuard.expenses.week;
