@@ -45,7 +45,11 @@ button.small{ font-size: .7em; color: #aaa; border-color: #aaa; }
 
 #main-nav{ background: black; color: white; padding: .5em; font-size: .8em; display: none; }
 #main-nav.active{ display: block; }
-#main-nav a{ color: white; }
+#main-nav a{ color: white; text-decoration: none; }
+.time-range-view-buttons{ float: right; }
+.time-range-view-buttons a { opacity: .6; padding: .1em .4em; }
+.time-range-view-buttons a.active { display: inline-block; opacity: 1; background: #159f36; border-radius: 9px; }
+.time-range-view-buttons a + a{ margin-left: .4em; }
 
 .expenses{ margin: 0; padding: 0; position: relative; display: none; }
 .expenses.active{ display: block; }
@@ -99,6 +103,8 @@ section button.cancel{ margin-left: auto; display: block; background: transparen
 .toggle-list-view.on:after{ content: ' view progress'; font-size: .9em; color: #aaa; }
 .toggle-list-view:before{ content: '\e808'; font-family: 'icons'; font-size: 1.2em; }
 .toggle-list-view:after{ content: ' view list'; font-size: .9em; color: #aaa; }
+#list-view > ul{ display: none; }
+#list-view > ul.active{ display: block; }
 #list-view ul{ list-style: none; padding: 0; margin: 0; }
 #list-view ul li > h2{ background: #555; color: white; padding: .5em; font-size: .8em; margin-bottom: 0; }
 #list-view ul li > ul > li{ position: relative; padding: .5em 4em .5em 2em; }

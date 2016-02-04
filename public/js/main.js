@@ -42,7 +42,8 @@ function checkIfLoggedIn(){
 			  
 			  addCategoryHTML();
 			$('#progress-view').addClass('active').siblings('section').removeClass('active');
-			 $('#progress-view').find('.week.expenses').addClass('active');
+			
+			 
 			$('#main-nav').addClass('active');
           },
           error: function(error) {
@@ -233,8 +234,12 @@ $(document).on('click', '#signup-button', function(){
     $('#progress-view').toggleClass('active');
 	$(this).toggleClass('on');
 	$('#list-view').toggleClass('active');
-})
-;
+}).on('click', '.time-range-view-buttons a', function(){
+	var timeRange = $(this).html().toLocaleLowerCase();
+	$(this).addClass('active').siblings().removeClass('active');
+	$('.' + timeRange + '.expenses').addClass('active').siblings().removeClass('active');
+	$('#list-view').find('.' + timeRange).addClass('active').siblings().removeClass('active');
+});
 $(document).ready(function(){
     // Make past days buttons
     var dayNumber = moneyGuard.settings.weekStart;
@@ -362,7 +367,7 @@ function populateUi(timeRange){
 		$(this).find('.progress-bar-container').append(html);
 	});
 	addDayMarker(timeRange);
-	populateListUi();
+	populateListUi(timeRange);
 }
 function incrementClientAmount(amount, cat, date){
 	moneyGuard.expenses.week[cat].expenses.push({id: 'x', amount: amount, date: date})
@@ -411,7 +416,6 @@ function getDayWord(number, abbr){
     return days[number];
 }
 function addDayMarker(timeRange){
-	console.log(getDaysInMonth())
 	if( timeRange === 'week' ){
 		width = (getDaysAheadOfWeekStart() * (100/7)) + '%';
 		$('.week.expenses').append('<div class="day-marker" style="width: ' + width + '"></div>');
@@ -420,16 +424,20 @@ function addDayMarker(timeRange){
 		$('.month.expenses').append('<div class="day-marker" style="width: ' + width + '"></div>');
 	}
 }
-function populateListUi(){
-	var weekObj = moneyGuard.expenses.week;
+function populateListUi(timeRange){
+	if( timeRange === 'week' ){
+		var timeRangeObj = moneyGuard.expenses.week;
+	}else if( timeRange === 'month' ){
+		var timeRangeObj = moneyGuard.expenses.month;
+	}
 	var friends = moneyGuard.settings.friends;
-	var html = '<ul>';
-	for(var cat in weekObj) {
-		if (weekObj.hasOwnProperty(cat)) {
-			html += '<li><h2>' + weekObj[cat].name + '</h2>';
+	var html = '';
+	for(var cat in timeRangeObj) {
+		if (timeRangeObj.hasOwnProperty(cat)) {
+			html += '<li><h2>' + timeRangeObj[cat].name + '</h2>';
 			html += '<ul>';
-			for (var i = 0; i < weekObj[cat].expenses.length; i++){
-				var exp = weekObj[cat].expenses[i];
+			for (var i = 0; i < timeRangeObj[cat].expenses.length; i++){
+				var exp = timeRangeObj[cat].expenses[i];
 				var lat;
 				var long;
 				if( typeof(exp.location) !== 'undefined' ){
@@ -459,8 +467,8 @@ function populateListUi(){
 			html += '</ul></li>';
     	}	
 	}
-	html += '</ul>';
-	$('#list-view').html(html);
+	html += '';
+	$('#list-view').find('.' + timeRange).html(html);
 }
 function isValidGeoPoint(lat,long){
 	if( (Math.abs(lat) + ' ').length > 17 && (Math.abs(long) + ' ').length > 17){
