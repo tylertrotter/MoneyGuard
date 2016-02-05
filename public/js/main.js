@@ -42,8 +42,7 @@ function checkIfLoggedIn(){
 			  
 			  addCategoryHTML();
 			$('#progress-view').addClass('active').siblings('section').removeClass('active');
-			
-			 
+			$('.week-view').trigger('click');
 			$('#main-nav').addClass('active');
           },
           error: function(error) {
@@ -88,6 +87,8 @@ function logIn(username, password){
 function addCategoryHTML(){
 	var Categories = Parse.Object.extend("Categories");
 	var categoriesQuery = new Parse.Query(Categories);
+	
+	categoriesQuery.descending('Budget');
 
 	// Print out category list
 	categoriesQuery.find({
