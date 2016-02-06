@@ -88,7 +88,7 @@ function addCategoryHTML(){
 	var Categories = Parse.Object.extend("Categories");
 	var categoriesQuery = new Parse.Query(Categories);
 	
-	categoriesQuery.descending('Budget');
+	//categoriesQuery.descending('Budget');
 
 	// Print out category list
 	categoriesQuery.find({
@@ -192,7 +192,7 @@ $(document).on('click', '#signup-button', function(){
 	$('.add-expense-template').after(addExpenseClone.attr('id', 'add-expense'))
     addExpenseClone.find('h1').html(categoryName);
 	$('html,body').scrollTop(0);
-    addExpenseClone.addClass('active').attr('data-category', $(this).parents('li').attr('id')); 
+    addExpenseClone.addClass('active').attr('data-category', $(this).parents('li').attr('data-cat-id')); 
     addExpenseClone.find('.amount-input input').focus();
     getLocation();
 }).on('click', '#save-button', function(){
@@ -213,7 +213,7 @@ $(document).on('click', '#signup-button', function(){
         }else{
             latLong = [0,0];
         }
-
+		
         addExpense(amount, $('#add-expense').attr('data-category'), time, latLong, $('#add-expense').find('.notes textarea').val()); 
     }
 }).on('click', '.button-group button', function(){
@@ -289,7 +289,7 @@ function addExpense(amount, cat, date, location, notes){
     }, {
         success: function(expenses) {
             $('#add-expense').remove();
-            incrementClientAmount(amount, cat, date);
+            incrementClientAmount(expenses.id, amount, cat, date, geoPoint, notes, Parse.User.current());
         },
         error: function(expenses, error) {
         }
@@ -343,7 +343,7 @@ function populateUi(timeRange){
 		}else{
 			$(this).find('.amount-left').text('$' + amountLeft*-1 + ' over');
 		}
-		
+
 		$filledBar.width(percentSpent + '%');
 		if( percentSpent > 100 ){
 			$filledBar.parents('.progress-bar-container').addClass('fail');
@@ -370,10 +370,13 @@ function populateUi(timeRange){
 	addDayMarker(timeRange);
 	populateListUi(timeRange);
 }
-function incrementClientAmount(amount, cat, date){
-	moneyGuard.expenses.week[cat].expenses.push({id: 'x', amount: amount, date: date})
+function incrementClientAmount(id, amount, cat, date, geoPoint, notes, user){
+	moneyGuard.expenses.week[cat].expenses.push({id: id, amount: amount, date: date, location: geoPoint, notes: notes, person: user})
 	moneyGuard.expenses.week[cat].total = moneyGuard.expenses.week[cat].total + amount;
+	moneyGuard.expenses.month[cat].expenses.push({id: id, amount: amount, date: date, location: geoPoint, notes: notes, person: user})
+	moneyGuard.expenses.month[cat].total = moneyGuard.expenses.month[cat].total + amount;
 	populateUi('week');
+	populateUi('month');
 }
 function getWeekStart() {  
     var timestamp = new Date().getTime();
@@ -441,15 +444,18 @@ function populateListUi(timeRange){
 				var exp = timeRangeObj[cat].expenses[i];
 				var lat;
 				var long;
+				var buyer = '';
 				if( typeof(exp.location) !== 'undefined' ){
 					lat = exp.location._latitude;
 					long = exp.location._longitude;
 				}
-				for( var f = 0; f < friends.length; f++){
-					if( exp.person.id === friends[f].id){
-						buyer = friends[f].name;
-					}else{
-						buyer = moneyGuard.settings.name;	
+				if( typeof(exp.person) !== 'undefined'){
+					for( var f = 0; f < friends.length; f++){
+						if( exp.person.id === friends[f].id){
+							buyer = friends[f].name;
+						}else{
+							buyer = moneyGuard.settings.name;	
+						}
 					}
 				}
         		html += '<li>';
