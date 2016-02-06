@@ -27,8 +27,9 @@ red: #eb2700
 *{ box-sizing: border-box; }
 body{ font-family: 'Raleway', sans-serif; }
 .wrapper{ padding: 0 16px; max-width: 900px; margin: 0 auto; }
-#top-bar{ background: #159f36; font-size: .875em; padding: .2em; color: white; text-align: right; overflow: auto; }
+#top-bar{ background: #159f36; font-size: .875em; padding: .2em; color: white; overflow: auto; }
 #logo{ float: left; font-weight: 600; }
+#top-bar .controls{ float: right; }
 #top-bar a{ color: white; text-decoration: none; }
 body > section{ display: none; }
 .selected{ border: 1px solid #159f36; color: #159f36; box-shadow: 0 0 3px #159f36; opacity: 1 !important; }
@@ -118,3 +119,7 @@ section button.cancel{ margin-left: auto; display: block; background: transparen
 .list-view-amount{ font-weight: 900; font-size: 1.5em; color: #159f36; position: absolute; right: 0; top: .5em; }
 .list-view-amount:before{ content: '$'; }
 .edit-expense{ display: none; }
+
+#settings{ position: absolute; left: 100%; top: 0; background: rgba(0,0,0,.95); width: 100%; color: white; transition: all .5s; }
+#settings.active{ left: 0; }
+#settings input, #settings button, #settings select{ background: black; }

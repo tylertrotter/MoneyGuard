@@ -31,11 +31,11 @@
 	<body>
 		<div id="top-bar">
 		  <span id="logo">MoneyGuard</span>
-          <!--<img src="http://placehold.it/30x30" id="logo">
-          <a class="name"></a>
-          <a href="#settings" class="settings-button">Settings</a>
-			-->
-		  <a class="name"></a>
+			<div class="controls">
+				<a href="#settings" class="settings-button">Settings</a>
+		  		<a class="name"></a>
+			</div>
+          
       </div>
 		<nav id="main-nav">
 			<a href="#list" class="toggle-list-view"></a>
@@ -101,7 +101,40 @@
 			  <button type="button" id="save-button" class="important">Record It</button>
 		  </div>
 		</section>
-		<section id="settings"></section>
+		<section id="settings">
+			<button type="button" class="cancel">cancel</button>
+			<div class="wrapper">
+				<h1>Preferences</h2>
+				<label>Fiscal Week Start</label>
+				<select id="select-week-start">
+					<option value="0">Sunday</option>
+					<option value="1">Monday</option>
+					<option value="2">Tuesday</option>
+					<option value="3">Wednesday</option>
+					<option value="4">Thursday</option>
+					<option value="5">Friday</option>
+					<option value="6">Saturday</option>
+				</select>
+				<option></option>
+				<h1>Friends</h2>
+				<label>Share your expenses with other MoneyGuard users</label>
+				<input type="text" placeholder="email address">
+				<div class="info">
+					<p>The sharing goes one way. This user will be able to see your expenses but not vice versa. Your friend will have to do this same step for your email address for the sharing to go both ways.</p>
+					<p>Seperate multiple email addresses by commas.</p>
+				</div>
+				
+				<h1>Categories</h2>
+				<ol class="add-remove-categories">
+					<li>
+						<input type="text" placeholder="New Category">
+						<input type="number" placeholder="Monthly Budget">
+						<button type="button" class="add">add</button>
+					</li>
+				</ol>
+			</div>
+			
+		</section>
 		
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 		<script src="js/main.js"></script>

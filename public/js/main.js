@@ -26,6 +26,7 @@ function checkIfLoggedIn(){
               var friends = user[0].get("friends");
               $('#top-bar').find('.name').html(name);
               moneyGuard.settings.name = name;
+			  moneyGuard.settings.weekStart = user[0].get('weekStart');
 
               // Get Friends List
               var User = Parse.Object.extend("_User");
@@ -95,6 +96,7 @@ function addCategoryHTML(){
 		success: function(categories){
 			var html = '';
 			var monthHtml = '';
+			var settingsHtml = '';
 			var weekExpensesObj = {};
 			var monthExpensesObj = {};
 			var cat;
@@ -129,9 +131,16 @@ function addCategoryHTML(){
 				monthHtml += '</div>';
 				monthHtml += '</li>';
 				
+				settingsHtml += '<li data-cat-id="' + cat.id + '">'
+				settingsHtml += '<input type="text" value="' + cat.get('Name') + '" placeholder="Category Name">';
+				settingsHtml += '<input type="number" value="' + monthBudget + '" placeholder="Monthly Budget">';
+				settingsHtml += '<button class="delete" type="button">delete</button>';
+				settingsHtml += '</li>';
+				
 			}
 			$('#progress-view').find('.week').html(html);
 			$('#progress-view').find('.month').html(monthHtml);
+			$('#settings').find('.add-remove-categories').prepend(settingsHtml);
 			// Add categories to Object
 			moneyGuard.expenses.week = weekExpensesObj;
 			moneyGuard.expenses.month = monthExpensesObj;
@@ -240,6 +249,31 @@ $(document).on('click', '#signup-button', function(){
 	$(this).addClass('active').siblings().removeClass('active');
 	$('.' + timeRange + '.expenses').addClass('active').siblings().removeClass('active');
 	$('#list-view').find('.' + timeRange).addClass('active').siblings().removeClass('active');
+}).on('click', '#top-bar .settings-button', function(){
+	$('#settings').toggleClass('active');
+	$('#select-week-start').find('[value=' + moneyGuard.settings.weekStart + ']').attr('selected', true);
+}).on('change', '#select-week-start', function(){
+	var User = Parse.Object.extend(Parse.User.current());
+    var user = new User();
+	var day = $(this).val()*1;
+	moneyGuard.settings.weekStart = day;
+    
+	//user.set({weekStart: 7});
+	
+    // Set ACL
+//    var acl = new Parse.ACL();
+//    acl.setWriteAccess( Parse.User.current(), true);
+//    acl.setReadAccess( Parse.User.current(), true);
+//    for(i=0; i < moneyGuard.settings.friends.length; i++){
+//        acl.setWriteAccess( moneyGuard.settings.friends[i], true);
+//        acl.setReadAccess( moneyGuard.settings.friends[i], true);
+//    }
+
+    //acl.setPublicReadAccess(false);
+    //user.setACL(acl);
+    user.save({
+        'weekStart': day
+    });
 });
 $(document).ready(function(){
     // Make past days buttons
