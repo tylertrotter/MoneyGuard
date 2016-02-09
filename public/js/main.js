@@ -257,23 +257,12 @@ $(document).on('click', '#signup-button', function(){
     var user = new User();
 	var day = $(this).val()*1;
 	moneyGuard.settings.weekStart = day;
-    
-	//user.set({weekStart: 7});
-	
-    // Set ACL
-//    var acl = new Parse.ACL();
-//    acl.setWriteAccess( Parse.User.current(), true);
-//    acl.setReadAccess( Parse.User.current(), true);
-//    for(i=0; i < moneyGuard.settings.friends.length; i++){
-//        acl.setWriteAccess( moneyGuard.settings.friends[i], true);
-//        acl.setReadAccess( moneyGuard.settings.friends[i], true);
-//    }
-
-    //acl.setPublicReadAccess(false);
-    //user.setACL(acl);
     user.save({
         'weekStart': day
     });
+}).on('click', '#new-category button', function(){ 
+	var $container = $('#new-category');
+	addCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val());
 });
 $(document).ready(function(){
     // Make past days buttons
@@ -535,4 +524,12 @@ function formatDate(date){
 	}
 	var time = convertedHours + ':' + date.getMinutes() + ' ' + amPm;
 	return day + ', ' + month + ' ' + dateNum + ', ' + year + ' at ' + time;
+}
+function addCategory(name, budget){
+	console.log(name, budget)
+	var Categories = Parse.Object.extend("Categories");
+	newCat = new Categories();
+	newCat.set('Name', name);
+	newCat.set('Budget', budget*1);
+	newCat.save();
 }
