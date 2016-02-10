@@ -262,7 +262,13 @@ $(document).on('click', '#signup-button', function(){
     });
 }).on('click', '#new-category button', function(){ 
 	var $container = $('#new-category');
-	addCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val());
+	addUpdateCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val());
+}).on('blur', '[data-cat-id]', function(){ 
+	var $container = $(this);
+	addUpdateCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val(), $container.attr('data-cat-id'));
+}).on('click', '.delete', function(){ 
+	var id = $(this).parent().attr('data-cat-id');
+	deleteCategory(id);
 });
 $(document).ready(function(){
     // Make past days buttons
@@ -525,11 +531,23 @@ function formatDate(date){
 	var time = convertedHours + ':' + date.getMinutes() + ' ' + amPm;
 	return day + ', ' + month + ' ' + dateNum + ', ' + year + ' at ' + time;
 }
-function addCategory(name, budget){
-	console.log(name, budget)
+function addUpdateCategory(name, budget, id){
 	var Categories = Parse.Object.extend("Categories");
 	newCat = new Categories();
+	if( typeof(id) !== 'undefined'){
+		newCat.id = id;
+	}
 	newCat.set('Name', name);
 	newCat.set('Budget', budget*1);
 	newCat.save();
+}
+function deleteCategory(catId){
+	var Categories = Parse.Object.extend("Categories");
+	catToDelete = new Categories();
+	catToDelete.id = catId;
+	catToDelete.destroy({
+		success: function(){
+			$('[data-cat-id=' + catId + ']').remove();
+		}
+	});
 }
