@@ -27,6 +27,7 @@ red: #eb2700
 *{ box-sizing: border-box; }
 body{ font-family: 'Raleway', sans-serif; }
 .wrapper{ padding: 0 16px; max-width: 900px; margin: 0 auto; }
+.visually-hidden{ position: absolute; left: -99999px; }
 #top-bar{ background: #159f36; font-size: .875em; padding: .2em; color: white; overflow: auto; }
 #logo{ float: left; font-weight: 600; }
 #top-bar .controls{ float: right; }
@@ -39,6 +40,7 @@ body > section{ display: none; }
 button{ border: 1px solid gray; background: white; border-radius: 5px; padding: .3em .5em; outline: none; }
 button.important{ font-size: 2em; border: 1px solid #eb2700; color: #eb2700; }
 button.small{ font-size: .7em; color: #aaa; border-color: #aaa; }
+input[type=text], input[type=password], input[type=number], select{ padding: .3em; border: 1px solid #aaa; }
 
 #login-signup section{ margin-bottom: 3em; }
 #login-signup label{ display: inline-block; width: 5em; }
@@ -120,6 +122,18 @@ section button.cancel{ margin-left: auto; display: block; background: transparen
 .list-view-amount:before{ content: '$'; }
 .edit-expense{ display: none; }
 
-#settings{ position: absolute; left: 100%; top: 0; background: rgba(0,0,0,.95); width: 100%; color: white; transition: all .5s; }
+#settings{ position: absolute; left: 100%; top: 0; background: rgba(0,0,0,.95); width: 100%; height: 100%; color: white; transition: all .5s; }
 #settings.active{ left: 0; }
 #settings input, #settings button, #settings select{ background: black; }
+.settings-button{ margin-right: .3em; }
+.settings-button:before{ content: '\e802'; font-family: 'icons'; }
+.name{ font-size: .875em; }
+
+.add-remove-categories{ list-style: none; padding: 0; margin: 0; }
+.add-remove-categories li{ margin: 0 0 .5em 0; }
+.add-remove-categories [type=text], .add-remove-categories [type=number]{ border-color: #555; }
+.add-remove-categories [type=number]{ width: 6em; text-align: right; border-left-width: 0; margin-right: 1em; }
+.add-remove-categories button{ font-size: .875em; background: #333 !important; }
+#new-category{ margin-top: 1.5em; }
+
+.really-delete button, .really-delete input{ background: #eb2700 !important; border-color: #961a02 !important; }

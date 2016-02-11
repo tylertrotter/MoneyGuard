@@ -89,7 +89,7 @@ function addCategoryHTML(){
 	var Categories = Parse.Object.extend("Categories");
 	var categoriesQuery = new Parse.Query(Categories);
 	
-	//categoriesQuery.descending('Budget');
+	categoriesQuery.descending('Budget');
 
 	// Print out category list
 	categoriesQuery.find({
@@ -133,7 +133,7 @@ function addCategoryHTML(){
 				
 				settingsHtml += '<li data-cat-id="' + cat.id + '">'
 				settingsHtml += '<input type="text" value="' + cat.get('Name') + '" placeholder="Category Name">';
-				settingsHtml += '<input type="number" value="' + monthBudget + '" placeholder="Monthly Budget">';
+				settingsHtml += '<input type="number" value="' + monthBudget + '" placeholder="Budget">';
 				settingsHtml += '<button class="delete" type="button">delete</button>';
 				settingsHtml += '</li>';
 				
@@ -267,6 +267,9 @@ $(document).on('click', '#signup-button', function(){
 	var $container = $(this);
 	updateCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val(), $container.attr('data-cat-id'));
 }).on('click', '.delete', function(){ 
+	$(this).parent().addClass('really-delete');
+	$(this).html('sure?');
+}).on('click', '.really-delete .delete', function(){ 
 	var id = $(this).parent().attr('data-cat-id');
 	deleteCategory(id);
 });
@@ -539,7 +542,7 @@ function addCategory(name, budget){
 	newCat.save(null, function(addedCategory){
         var name = $('#new-category').find('[type=text]');
         var amount = $('#new-category').find('[type=number]');
-        html = '<li data-cat-id="' + addedCategory.id + '"><input type="text" value="' + name.val() + '" placeholder="Category Name"><input type="number" value="' + amount.val() + '" placeholder="Monthly Budget"><button class="delete" type="button">delete</button></li>';
+        html = '<li data-cat-id="' + addedCategory.id + '"><input type="text" value="' + name.val() + '" placeholder="Category Name"><input type="number" value="' + amount.val() + '" placeholder="Budget"><button class="delete" type="button">delete</button></li>';
         $('#new-category').before(html);
         name.val('');
         amount.val('');
