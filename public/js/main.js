@@ -262,10 +262,10 @@ $(document).on('click', '#signup-button', function(){
     });
 }).on('click', '#new-category button', function(){ 
 	var $container = $('#new-category');
-	addUpdateCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val());
+	addCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val());
 }).on('blur', '[data-cat-id]', function(){ 
 	var $container = $(this);
-	addUpdateCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val(), $container.attr('data-cat-id'));
+	updateCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val(), $container.attr('data-cat-id'));
 }).on('click', '.delete', function(){ 
 	var id = $(this).parent().attr('data-cat-id');
 	deleteCategory(id);
@@ -531,12 +531,25 @@ function formatDate(date){
 	var time = convertedHours + ':' + date.getMinutes() + ' ' + amPm;
 	return day + ', ' + month + ' ' + dateNum + ', ' + year + ' at ' + time;
 }
-function addUpdateCategory(name, budget, id){
+function addCategory(name, budget){
 	var Categories = Parse.Object.extend("Categories");
 	newCat = new Categories();
-	if( typeof(id) !== 'undefined'){
-		newCat.id = id;
-	}
+	newCat.set('Name', name);
+	newCat.set('Budget', budget*1);
+	newCat.save(null, function(addedCategory){
+        var name = $('#new-category').find('[type=text]');
+        var amount = $('#new-category').find('[type=number]');
+        html = '<li data-cat-id="' + addedCategory.id + '"><input type="text" value="' + name.val() + '" placeholder="Category Name"><input type="number" value="' + amount.val() + '" placeholder="Monthly Budget"><button class="delete" type="button">delete</button></li>';
+        $('#new-category').before(html);
+        name.val('');
+        amount.val('');
+        
+    });
+}
+function updateCategory(name, budget, id){
+	var Categories = Parse.Object.extend("Categories");
+	newCat = new Categories();
+    newCat.id = id;
 	newCat.set('Name', name);
 	newCat.set('Budget', budget*1);
 	newCat.save();
