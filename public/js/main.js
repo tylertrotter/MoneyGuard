@@ -237,7 +237,7 @@ $(document).on('click', '#signup-button', function(){
 }).on('click', '[data-time-ago]', function(){
     $('#add-expense').attr('data-time', $(this).attr('data-time-ago'));
 }).on('click', '.cancel', function(){
-    $(this).parents('section.background').removeClass('background');
+    $('section.background').removeClass('background');
 	$('#add-expense').remove();
     $(this).parent().removeClass('active');
 }).on('click', '.notes button', function(){
@@ -264,8 +264,13 @@ $(document).on('click', '#signup-button', function(){
         'weekStart': day
     });
 }).on('click', '#new-category button', function(){ 
+	$(this).addClass('pending');
 	var $container = $('#new-category');
-	addCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val());
+	if( $container.find('[type="text"]').val().length > 0 && typeof($container.find('[type="number"]').val()*1) === 'number'){
+		addCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val());
+	}else{
+		alert('There is a problem with this category.');
+	}
 }).on('blur', '#settings [data-cat-id]', function(){ 
 	var $container = $(this);
 	updateCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val(), $container.attr('data-cat-id'));
@@ -397,7 +402,7 @@ function populateUi(timeRange){
 		var html = '';
 		for(d = 0; d <= 6; d++){
 			if( expensesByDay[d] > 0 && timeRange === 'week'){
-				html += '<div class="day-' + d + '" data-number="' + numOfExpensesByDay[d] + '" style="left: ' + d * (100/7) + '%;">$' + expensesByDay[d] + '</div>';
+				html += '<div class="day-' + d + '" data-number="' + numOfExpensesByDay[d] + '" style="left: ' + d * (100/7) + '%;">$' + Math.round(expensesByDay[d]) + '</div>';
 			}
 		}
 		$(this).find('.progress-bar-container').append(html);
@@ -502,7 +507,7 @@ function populateListUi(timeRange){
 				if( exp.notes.length > 0 ){
 					html += '<p class="list-view-notes">' + exp.notes + '</p>';
 				}
-				html += '<span class="list-view-amount">' + exp.amount + '</span>';
+				html += '<span class="list-view-amount">' + Math.round(exp.amount) + '</span>';
 				html += '<a class="edit-expense">E</a>';
 				html += '</li>';
 			}
@@ -524,17 +529,22 @@ function formatDate(date){
 	var month = englishMonth(date.getMonth());
 	var dateNum = date.getDate();
 	var year = date.getFullYear();
+	
 	if( date.getHours() > 12 ){
 		var convertedHours = date.getHours() - 12;	
 		var amPm = 'pm';
 	}else if(date.getHours() === 12){
 		var convertedHours = date.getHours();	
 		var amPm = 'midday';
+	}else if(date.getHours() === 0){
+		var convertedHours = 12;	
+		var amPm = 'am';
 	}else{
 		var convertedHours = date.getHours();	
 		var amPm = 'am';
 	}
-	var time = convertedHours + ':' + date.getMinutes() + ' ' + amPm;
+	var minutes = ('0' + date.getMinutes()).slice(-2);
+	var time = convertedHours + ':' + minutes + ' ' + amPm;
 	return day + ', ' + month + ' ' + dateNum + ', ' + year + ' at ' + time;
 }
 function addCategory(name, budget){
@@ -549,7 +559,7 @@ function addCategory(name, budget){
         $('#new-category').before(html);
         name.val('');
         amount.val('');
-        
+		$('#new-category').find('button').removeClass('pending');
     });
 }
 function updateCategory(name, budget, id){

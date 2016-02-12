@@ -3,14 +3,21 @@ green: #159f36
 red: #eb2700
 
 .icon-location:before { content: '\e800'; }
-.icon-pencil:before { content: '\e801'; } 
+.icon-pencil:before { content: '\e801'; }
 .icon-cog-1:before { content: '\e802'; }
-.icon-circle:before { content: '\e803'; }
-.icon-plus-circled:before { content: '\e804'; }
-.icon-angle-circled-right:before { content: '\e805'; }
-.icon-money:before { content: '\e806'; }
+.icon-dot:before { content: '\e803'; }
+.icon-dot-2:before { content: '\e804'; }
+.icon-dot-3:before { content: '\e805'; }
+.icon-right-open:before { content: '\e806'; }
 .icon-th-list:before { content: '\e807'; }
 .icon-list:before { content: '\e808'; }
+.icon-left-open:before { content: '\e809'; }
+.icon-up-open:before { content: '\e80a'; }
+.icon-down-open:before { content: '\e80b'; }
+.icon-th-list-1:before { content: '\e80c'; }
+.icon-money:before { content: '\e80d'; }
+.icon-spin5:before { content: '\e80e'; }
+.icon-cancel:before { content: '\e80f'; }
 
 */
 @font-face {
@@ -22,6 +29,41 @@ red: #eb2700
        url('../font/icons.svg?60806113#icons') format('svg');
   font-weight: normal;
   font-style: normal;
+}
+.spin {
+  -webkit-animation: spin 2s infinite linear;
+  animation: spin 2s infinite linear;
+  display: inline-block;
+}
+@-webkit-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
 }
 
 *{ box-sizing: border-box; }
@@ -42,6 +84,8 @@ button{ border: 1px solid gray; background: white; border-radius: 5px; padding: 
 button.important{ font-size: 2em; border: 1px solid #eb2700; color: #eb2700; }
 button.small{ font-size: .7em; color: #aaa; border-color: #aaa; }
 input[type=text], input[type=password], input[type=number], select{ padding: .3em; border: 1px solid #aaa; }
+button.pending{ font-size: 0 !important; }
+button.pending:before{ min-width: 50px; padding: 2px; content: '\e80e'; font-family: 'icons'; display: inline-block; font-size: 20px; -webkit-animation: spin; animation: spin; text-align: center; }
 
 #login-signup section{ margin-bottom: 3em; }
 #login-signup label{ display: inline-block; width: 5em; }
@@ -87,8 +131,9 @@ input[type=text], input[type=password], input[type=number], select{ padding: .3e
 
 .day-marker{ position: absolute; left: 0; top: 0; height: 100%; border-right: 1px solid black; opacity: .05; z-index: -1; }
 
-#add-expense{ position: absolute; top: 0; left: 0; background: rgba(0,0,0,.85); width: 100%; min-height: 100%; }
-section button.cancel{ margin-left: auto; display: block; background: transparent; border: none; color: white; }
+#add-expense{ position: absolute; top: 0; left: 0; background: rgba(0,0,0,.95); width: 100%; min-height: 100%; }
+section button.cancel{ margin-left: auto; display: block; background: transparent; border: none; color: white; font-size: 1.5em; }
+section button.cancel:before{ content: '\e80f'; font-family: 'icons'; }
 #add-expense .wrapper{ width: 80%; max-width: 500px;  margin: 0 auto; background: white; padding: 16px; }
 #add-expense h1{ margin: 0; font-size: 1em; }
 .amount-input{ font-size: 3em; text-align: center; margin: 16px; }
@@ -123,9 +168,9 @@ section button.cancel{ margin-left: auto; display: block; background: transparen
 .list-view-amount:before{ content: '$'; }
 .edit-expense{ display: none; }
 
-#settings{ position: absolute; left: 100%; min-height: 100%; top: 0; background: rgba(0,0,0,.85); width: 100%; color: white; transition: all .5s; }
+#settings{ position: absolute; left: 100%; min-height: 100%; top: 0; background: rgba(0,0,0,.95); width: 100%; color: white; transition: all .5s; }
 #settings.active{ left: 0; }
-#settings input, #settings button, #settings select{ background: black; }
+#settings .wrapper input, #settings .wrapper button, #settings .wrapper select{ background: black; }
 .settings-button{ margin-right: .3em; }
 .settings-button:before{ content: '\e802'; font-family: 'icons'; }
 .name{ font-size: .875em; }

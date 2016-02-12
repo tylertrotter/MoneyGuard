@@ -83,7 +83,7 @@
 			<ul class="month"></ul>
 		</section>
 		<section class="add-expense-template" data-category="" data-time="">
-		  <button type="button" class="cancel">cancel</button>
+		  <button type="button" class="cancel"><span class="visually-hidden">cancel</span></button>
 		  <div class="wrapper">
 			  <h1></h1>
 			  <div class="amount-input">$<input type="number" pattern="[0-9]*"></div>
@@ -102,7 +102,7 @@
 		  </div>
 		</section>
 		<section id="settings">
-			<button type="button" class="cancel">cancel</button>
+			<button type="button" class="cancel"><span class="visually-hidden">cancel</span></button>
 			<div class="wrapper">
 				<h1>Preferences</h2>
 				<label>Fiscal Week Start</label>
@@ -115,7 +115,7 @@
 					<option value="5">Friday</option>
 					<option value="6">Saturday</option>
 				</select>
-				<option></option>
+				<!--
 				<h1>Friends</h2>
 				<label>Share your expenses with other MoneyGuard users</label>
 				<input type="text" placeholder="email address">
@@ -123,8 +123,9 @@
 					<p>The sharing goes one way. This user will be able to see your expenses but not vice versa. Your friend will have to do this same step for your email address for the sharing to go both ways.</p>
 					<p>Seperate multiple email addresses by commas.</p>
 				</div>
-				
+				-->
 				<h1>Categories</h2>
+				<p>Add categories and assign a monthly budget.</p>
 				<ol class="add-remove-categories">
 					<li id="new-category">
 						<input type="text" placeholder="New Category"><input type="number" placeholder="Budget"><button type="button" class="add">add</button>
