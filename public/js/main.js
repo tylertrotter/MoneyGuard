@@ -196,6 +196,7 @@ $(document).on('click', '#signup-button', function(){
 }).on('click', '#login-button', function(){
    logIn($('#login').find('[type=email]').val(), $('#login').find('[type=password]').val()); 
 }).on('click', '#progress-view button', function(){
+    $(this).parents('section').addClass('background');
     var categoryName = $(this).parents('li').find('.category').html();
 	addExpenseClone = $('.add-expense-template').clone();
 	$('.add-expense-template').after(addExpenseClone.attr('id', 'add-expense'))
@@ -236,6 +237,7 @@ $(document).on('click', '#signup-button', function(){
 }).on('click', '[data-time-ago]', function(){
     $('#add-expense').attr('data-time', $(this).attr('data-time-ago'));
 }).on('click', '.cancel', function(){
+    $(this).parents('section.background').removeClass('background');
 	$('#add-expense').remove();
     $(this).parent().removeClass('active');
 }).on('click', '.notes button', function(){
@@ -250,6 +252,7 @@ $(document).on('click', '#signup-button', function(){
 	$('.' + timeRange + '.expenses').addClass('active').siblings().removeClass('active');
 	$('#list-view').find('.' + timeRange).addClass('active').siblings().removeClass('active');
 }).on('click', '#top-bar .settings-button', function(){
+    $('section.active').addClass('background');
 	$('#settings').toggleClass('active');
 	$('#select-week-start').find('[value=' + moneyGuard.settings.weekStart + ']').attr('selected', true);
 }).on('change', '#select-week-start', function(){
@@ -263,10 +266,10 @@ $(document).on('click', '#signup-button', function(){
 }).on('click', '#new-category button', function(){ 
 	var $container = $('#new-category');
 	addCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val());
-}).on('blur', '[data-cat-id]', function(){ 
+}).on('blur', '#settings [data-cat-id]', function(){ 
 	var $container = $(this);
 	updateCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val(), $container.attr('data-cat-id'));
-}).on('click', '.delete', function(){ 
+}).on('click', '#settings .delete', function(){ 
 	$(this).parent().addClass('really-delete');
 	$(this).html('sure?');
 }).on('click', '.really-delete .delete', function(){ 
