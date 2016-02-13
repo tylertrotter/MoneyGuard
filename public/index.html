@@ -108,6 +108,7 @@
 		<section id="settings">
 			<button type="button" class="cancel"><span class="visually-hidden">cancel</span></button>
 			<div class="wrapper">
+                <button type="button" id="logout">Logout</button>
 				<h1>Preferences</h2>
 				<label>Fiscal Week Start</label>
 				<select id="select-week-start">
@@ -119,15 +120,15 @@
 					<option value="5">Friday</option>
 					<option value="6">Saturday</option>
 				</select>
-				<!--
+				
 				<h1>Friends</h2>
 				<label>Share your expenses with other MoneyGuard users</label>
-				<input type="text" placeholder="email address">
+				<input type="text" placeholder="email address" id="friends-input">
 				<div class="info">
 					<p>The sharing goes one way. This user will be able to see your expenses but not vice versa. Your friend will have to do this same step for your email address for the sharing to go both ways.</p>
 					<p>Seperate multiple email addresses by commas.</p>
 				</div>
-				-->
+				
 				<h1>Categories</h2>
 				<p>Add categories and assign a monthly budget.</p>
 				<ol class="add-remove-categories">

@@ -26,6 +26,7 @@ function checkIfLoggedIn(){
           success: function(user){
               var name = user[0].get("name");
               var friends = user[0].get("friends");
+              $('#friends-input').val(friends)
               $('#top-bar').find('.name').html(name);
               moneyGuard.settings.name = name;
 			  moneyGuard.settings.weekStart = user[0].get('weekStart');
@@ -309,6 +310,11 @@ $(document).on('click', '#signup-button', function(){
 	var id = $(this).parent().attr('data-cat-id');
     $(this).addClass('pending');
 	deleteCategory(id);
+}).on('change', '#friends-input', function(){ 
+	updateFriends($(this).val());
+}).on('click', '#logout', function(){
+    Parse.User.logOut();
+    window.location.href = '/';
 });
 $(document).ready(function(){
     // Make past days buttons
@@ -614,4 +620,25 @@ function deleteCategory(catId){
             markAsDirty($('#settings'));
 		}
 	});
+}
+function updateFriends(friendList){
+	var friends = friendList.split(',');
+    for(var i = 0; i < friends.length; i++){
+        friends[i] = $.trim(friends[i]);
+    }
+    var user = Parse.User.current();
+	user.save('friends', friends);
+    shareExistingCategories();
+}
+function shareExistingCategories(){
+    var Categories = Parse.Object.extend("Categories");
+	var categoriesQuery = new Parse.Query(Categories);
+    categoriesQuery.find(function(results){
+        for(var i = 0; i < results.length; i++){
+            console.log(results[i])
+            results[i].setACL(justFriendsACL());
+            // optimize?
+            results[i].save();
+        }
+    });
 }
