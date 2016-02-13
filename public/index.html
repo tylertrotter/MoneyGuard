@@ -28,12 +28,12 @@
 		<link href='https://fonts.googleapis.com/css?family=Raleway:400,700,900,300' rel='stylesheet' type='text/css'>
 		<script src="http://www.parsecdn.com/js/parse-1.6.14.min.js"></script>
 	</head>
-	<body>
+	<body class="loading">
 		<div id="top-bar">
 		  <span id="logo">MoneyGuard</span>
 			<div class="controls">
+                <a class="name"></a>
 				<a href="#settings" class="settings-button"><span class="visually-hidden">Settings</span></a>
-		  		<a class="name"></a>
 			</div>
           
       </div>
@@ -48,6 +48,10 @@
 		  <section id="signup">
 		  <h1>Signup</h1>
 			 <form>
+                <div>
+					<label>Name</label>
+					<input type="text">
+				</div>
 				<div>
 					<label>Email</label>
 					<input type="email">
@@ -127,9 +131,7 @@
 				<h1>Categories</h2>
 				<p>Add categories and assign a monthly budget.</p>
 				<ol class="add-remove-categories">
-					<li id="new-category">
-						<input type="text" placeholder="New Category"><input type="number" placeholder="Budget"><button type="button" class="add">add</button>
-					</li>
+					
 				</ol>
 			</div>
 			

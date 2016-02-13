@@ -15,8 +15,10 @@ moneyGuard.settings.friends = [];
 checkIfLoggedIn();
 function checkIfLoggedIn(){
     if( Parse.User.current() == null ){
+        $('body').removeClass('loading');
         $('#login-signup').addClass('active');       
     }else{
+        $('body').addClass('loading');
         var user = Parse.User.current();
         userQuery = new Parse.Query(user);
         userQuery.equalTo('objectId', user.id);
@@ -41,10 +43,10 @@ function checkIfLoggedIn(){
 			
 			  });
 			  
-			  addCategoryHTML();
+              addCategoryHTML();
 			$('#progress-view').addClass('active').siblings('section').removeClass('active');
 			$('.week-view').trigger('click');
-			$('#main-nav').addClass('active');
+            $('body').addClass('signed-in');
           },
           error: function(error) {
             alert("Error: " + error.code + " " + error.message);
@@ -55,11 +57,13 @@ function checkIfLoggedIn(){
 }
 
 // Sign Up
-function signUp(username, password){
+function signUp(name, username, password){
     var user = new Parse.User();
+    user.set("name", name);
     user.set("username", username);
     user.set("password", password);
     user.set("email", username);
+    user.set("weekStart", 0);
 
     user.signUp(null, {
       success: function(user) {
@@ -94,16 +98,23 @@ function addCategoryHTML(){
 	// Print out category list
 	categoriesQuery.find({
 		success: function(categories){
-			var html = '';
-			var monthHtml = '';
+			var html = '<li class="newbie">Hey ' + $('#top-bar').find('.name').html() + ', edit your settings to get&nbsp;started.</li>';
+			var monthHtml = html;
 			var settingsHtml = '';
 			var weekExpensesObj = {};
 			var monthExpensesObj = {};
 			var cat;
 			var weekBudget;
 			var monthBudget;
-			
+
+            if( categories.length > 0 ){
+                $('#main-nav').addClass('active');
+                html = '';
+                monthHtml = '';
+            }
+			$('body').attr('data-categories', categories.length);
 			for (var i = 0; i < categories.length; i++) {
+                $('body').removeClass('no-categories');
 				cat = categories[i];
 				monthBudget = cat.get('Budget');
 				weekBudget = Math.round(monthBudget / 4.3333333);
@@ -138,9 +149,13 @@ function addCategoryHTML(){
 				settingsHtml += '</li>';
 				
 			}
+            settingsHtml += '<li id="new-category">';
+            settingsHtml += '<input type="text" placeholder="New Category"><input type="number" placeholder="Budget"><button type="button" class="add">add</button>';
+			settingsHtml += '</li>';
+            $('body').removeClass('loading');
 			$('#progress-view').find('.week').html(html);
 			$('#progress-view').find('.month').html(monthHtml);
-			$('#settings').find('.add-remove-categories').prepend(settingsHtml);
+			$('#settings').find('.add-remove-categories').html(settingsHtml);
 			// Add categories to Object
 			moneyGuard.expenses.week = weekExpensesObj;
 			moneyGuard.expenses.month = monthExpensesObj;
@@ -192,8 +207,10 @@ var currentMonthDateObj = new Date(currentMonth + ' 1, ' + currentYear + ' 00:00
 
 // Events
 $(document).on('click', '#signup-button', function(){
-   signUp($('#signup').find('[type=email]').val(), $('#signup').find('[type=password]').val()); 
+    $(this).addClass('pending');
+   signUp($('#signup').find('[type=text]').val(), $('#signup').find('[type=email]').val(), $('#signup').find('[type=password]').val()); 
 }).on('click', '#login-button', function(){
+    $(this).addClass('pending');
    logIn($('#login').find('[type=email]').val(), $('#login').find('[type=password]').val()); 
 }).on('click', '#progress-view button', function(){
     $(this).parents('section').addClass('background');
@@ -206,6 +223,8 @@ $(document).on('click', '#signup-button', function(){
     addExpenseClone.find('.amount-input input').focus();
     getLocation();
 }).on('click', '#save-button', function(){
+    $('section.background').removeClass('background');
+    $(this).addClass('pending');
     var amount = $('#add-expense').find('.amount-input input').val()*1;
     var time = $('#add-expense').attr('data-time');
     if( time === ''){
@@ -240,6 +259,13 @@ $(document).on('click', '#signup-button', function(){
     $('section.background').removeClass('background');
 	$('#add-expense').remove();
     $(this).parent().removeClass('active');
+    if($('#settings').attr('data-dirty') === 'true'){
+        var Categories = Parse.Object.extend("Categories");
+        newCat = new Categories();
+        console.log(newCat.dirtyKeys());
+        addCategoryHTML();
+        $('#settings').attr('data-dirty', 'false');
+    }
 }).on('click', '.notes button', function(){
     $(this).next().toggleClass('active').focus();
 }).on('click', '.toggle-list-view', function(){
@@ -262,6 +288,8 @@ $(document).on('click', '#signup-button', function(){
 	moneyGuard.settings.weekStart = day;
     user.save({
         'weekStart': day
+    }, function(){
+         markAsDirty($('#settings'));
     });
 }).on('click', '#new-category button', function(){ 
 	$(this).addClass('pending');
@@ -271,7 +299,7 @@ $(document).on('click', '#signup-button', function(){
 	}else{
 		alert('There is a problem with this category.');
 	}
-}).on('blur', '#settings [data-cat-id]', function(){ 
+}).on('change', '#settings [data-cat-id]', function(){ 
 	var $container = $(this);
 	updateCategory($container.find('[type="text"]').val(), $container.find('[type="number"]').val(), $container.attr('data-cat-id'));
 }).on('click', '#settings .delete', function(){ 
@@ -279,6 +307,7 @@ $(document).on('click', '#signup-button', function(){
 	$(this).html('sure?');
 }).on('click', '.really-delete .delete', function(){ 
 	var id = $(this).parent().attr('data-cat-id');
+    $(this).addClass('pending');
 	deleteCategory(id);
 });
 $(document).ready(function(){
@@ -300,25 +329,16 @@ $(document).ready(function(){
     }
     $('.other-days').html(buttonsHtml);
 });
-
+function markAsDirty($this){
+    $this.attr('data-dirty', true);
+}
 function addExpense(amount, cat, date, location, notes){
     var Expenses = Parse.Object.extend("Expenses");
     var expenses = new Expenses();
     var category = new Parse.Object("Categories");
     category.id = cat;
     var geoPoint = new Parse.GeoPoint(location);
-
-    // Set ACL
-    var acl = new Parse.ACL();
-    acl.setWriteAccess( Parse.User.current(), true);
-    acl.setReadAccess( Parse.User.current(), true);
-    for(i=0; i < moneyGuard.settings.friends.length; i++){
-        acl.setWriteAccess( moneyGuard.settings.friends[i], true);
-        acl.setReadAccess( moneyGuard.settings.friends[i], true);
-    }
-
-    acl.setPublicReadAccess(false);
-    expenses.setACL(acl);
+    expenses.setACL(justFriendsACL());
     expenses.save({
         'Amount': amount,
         'Date': date,
@@ -334,6 +354,17 @@ function addExpense(amount, cat, date, location, notes){
         error: function(expenses, error) {
         }
     });
+}
+function justFriendsACL(){
+   var acl = new Parse.ACL();
+    acl.setWriteAccess( Parse.User.current(), true);
+    acl.setReadAccess( Parse.User.current(), true);
+    for(i=0; i < moneyGuard.settings.friends.length; i++){
+        acl.setWriteAccess( moneyGuard.settings.friends[i], true);
+        acl.setReadAccess( moneyGuard.settings.friends[i], true);
+    } 
+    acl.setPublicReadAccess(false);
+    return acl;
 }
 function getLocation(){
 
@@ -353,7 +384,7 @@ function objectifyExpenses(expenses, timeRange){
 		amount = expenses[i].get('Amount');
         category = expenses[i].get('Category').id;
 		objCat = moneyGuard.expenses[timeRange][category];
-		
+		console.log(objCat)
         objCat.expenses.push({id: expenses[i].id, amount: amount, date: expenses[i].get('Date'), location: expenses[i].get('Location'), notes: expenses[i].get('Notes'), person: expenses[i].get('Person')})
         objCat.total = objCat.total + amount;
     }
@@ -552,6 +583,7 @@ function addCategory(name, budget){
 	newCat = new Categories();
 	newCat.set('Name', name);
 	newCat.set('Budget', budget*1);
+    newCat.setACL(justFriendsACL());
 	newCat.save(null, function(addedCategory){
         var name = $('#new-category').find('[type=text]');
         var amount = $('#new-category').find('[type=number]');
@@ -560,6 +592,7 @@ function addCategory(name, budget){
         name.val('');
         amount.val('');
 		$('#new-category').find('button').removeClass('pending');
+        markAsDirty($('#settings'));
     });
 }
 function updateCategory(name, budget, id){
@@ -569,6 +602,7 @@ function updateCategory(name, budget, id){
 	newCat.set('Name', name);
 	newCat.set('Budget', budget*1);
 	newCat.save();
+    markAsDirty($('#settings'));
 }
 function deleteCategory(catId){
 	var Categories = Parse.Object.extend("Categories");
@@ -577,6 +611,7 @@ function deleteCategory(catId){
 	catToDelete.destroy({
 		success: function(){
 			$('[data-cat-id=' + catId + ']').remove();
+            markAsDirty($('#settings'));
 		}
 	});
 }

@@ -18,7 +18,7 @@ red: #eb2700
 .icon-money:before { content: '\e80d'; }
 .icon-spin5:before { content: '\e80e'; }
 .icon-cancel:before { content: '\e80f'; }
-
+.icon-up-big:before { content: '\e810'; }
 */
 @font-face {
   font-family: 'icons';
@@ -29,11 +29,6 @@ red: #eb2700
        url('../font/icons.svg?60806113#icons') format('svg');
   font-weight: normal;
   font-style: normal;
-}
-.spin {
-  -webkit-animation: spin 2s infinite linear;
-  animation: spin 2s infinite linear;
-  display: inline-block;
 }
 @-webkit-keyframes spin {
   0% {
@@ -65,7 +60,7 @@ red: #eb2700
     transform: rotate(359deg);
   }
 }
-
+.loading:before{ content: '\e80e'; font-family: 'icons'; color: #aaa; font-size: 4em; position: absolute; left: 50%; margin-left: -50px; top: 50px; width: 100px; display: inline-block; text-align: center; line-height: 100%; -webkit-animation: spin 2s infinite linear; animation: spin 2s infinite linear; }
 *{ box-sizing: border-box; }
 body{ font-family: 'Raleway', sans-serif; }
 .wrapper{ padding: 0 16px; max-width: 900px; margin: 0 auto; }
@@ -85,7 +80,8 @@ button.important{ font-size: 2em; border: 1px solid #eb2700; color: #eb2700; }
 button.small{ font-size: .7em; color: #aaa; border-color: #aaa; }
 input[type=text], input[type=password], input[type=number], select{ padding: .3em; border: 1px solid #aaa; }
 button.pending{ font-size: 0 !important; }
-button.pending:before{ min-width: 50px; padding: 2px; content: '\e80e'; font-family: 'icons'; display: inline-block; font-size: 20px; -webkit-animation: spin; animation: spin; text-align: center; }
+button.pending:before{ min-width: 46px; padding: 5px; content: '\e80e'; font-family: 'icons'; font-size: 17px; 
+    -webkit-animation: spin 2s infinite linear; animation: spin 2s infinite linear; display: inline-block; text-align: center; }
 
 #login-signup section{ margin-bottom: 3em; }
 #login-signup label{ display: inline-block; width: 5em; }
@@ -93,11 +89,18 @@ button.pending:before{ min-width: 50px; padding: 2px; content: '\e80e'; font-fam
 
 #main-nav{ background: black; color: white; padding: .5em; font-size: .8em; display: none; }
 #main-nav.active{ display: block; }
+[data-categories="0"] #main-nav.active{ display: none; }
 #main-nav a{ color: white; text-decoration: none; }
 .time-range-view-buttons{ float: right; }
 .time-range-view-buttons a { opacity: .6; padding: .1em .4em; }
 .time-range-view-buttons a.active { display: inline-block; opacity: 1; background: #159f36; border-radius: 9px; }
 .time-range-view-buttons a + a{ margin-left: .4em; }
+
+.newbie{ font-size: 1.5em; padding-right: 2em !important; }
+.newbie:after{ content: '\e810'; font-family: 'icons'; color: #159f36; position: absolute; right: 0; top: 20%; font-size: 1.5em; -ms-transform: rotate(31deg); -webkit-transform: rotate(31deg); transform: rotate(31deg); }
+@media (min-width: 950px){
+    .newbie:after{ transform: rotate(60deg); }
+}
 
 .expenses{ margin: 0; padding: 0; position: relative; display: none; }
 .expenses.active{ display: block; }
@@ -171,14 +174,17 @@ section button.cancel:before{ content: '\e80f'; font-family: 'icons'; }
 #settings{ position: absolute; left: 100%; min-height: 100%; top: 0; background: rgba(0,0,0,.95); width: 100%; color: white; transition: all .5s; }
 #settings.active{ left: 0; }
 #settings .wrapper input, #settings .wrapper button, #settings .wrapper select{ background: black; }
-.settings-button{ margin-right: .3em; }
+.settings-button{ margin-left: .3em; display: none; }
+.signed-in .settings-button{ display: inline-block; }
 .settings-button:before{ content: '\e802'; font-family: 'icons'; }
 .name{ font-size: .875em; }
 
 .add-remove-categories{ list-style: none; padding: 0; margin: 0; }
 .add-remove-categories li{ margin: 0 0 .5em 0; }
 .add-remove-categories [type=text], .add-remove-categories [type=number]{ border-color: #555; }
-.add-remove-categories [type=number]{ width: 6em; text-align: right; border-left-width: 0; margin-right: 1em; }
+.add-remove-categories [type=text]{ max-width: 48%; }
+.add-remove-categories [type=number]{ max-width: 28.5%; }
+.add-remove-categories [type=number]{ width: 6em; text-align: right; border-left-width: 0; margin-right: 2%; }
 .add-remove-categories button{ font-size: .875em; background: #333 !important; }
 #new-category{ margin-top: 1.5em; }
 
